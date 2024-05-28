@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/splash_screen.dart';
+
+import 'ai_travel/config/route/routes.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,25 +19,11 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'LG AI travel itinerary',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const Scaffold(
-        backgroundColor: Colors.redAccent,
-        body: Center(
-          child: Text(
-            "LIQUID GALAXY",
-            style: TextStyle(
-              fontSize: 30,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              decoration: TextDecoration.none, // Removing underline
-            ),
-          ),
-        ),
-      ),
+      theme: appTheme(),
+      onGenerateRoute: AppRoutes.onGenerateRoutes,
+      home: const SplashScreen(),
     );
   }
 }
