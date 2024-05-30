@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/snack_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/ssh/SSH.dart';
@@ -146,17 +147,23 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                                   ControlButton(
                                     icon: Icons.cleaning_services,
                                     label: 'Clean Slaves',
-                                    onPressed: (){},
+                                    onPressed: (){
+                                      cleanSlaves();
+                                    },
                                   ),
                                   ControlButton(
                                     icon: Icons.image,
                                     label: 'Show Logo',
-                                    onPressed: (){},
+                                    onPressed: (){
+
+                                    },
                                   ),
                                   ControlButton(
                                     icon: Icons.cleaning_services,
                                     label: 'Clean KML',
-                                    onPressed: (){},
+                                    onPressed: (){
+                                        cleanKml();
+                                    },
                                   ),
                                 ],
                               ),
@@ -167,13 +174,17 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                                     icon: Icons.refresh,
                                     label: 'Set Refresh',
                                     isPrimary: true,
-                                    onPressed: (){},
+                                    onPressed: (){
+                                      setRefresh();
+                                    },
                                   ),
                                   ControlButton(
                                     icon: Icons.refresh,
                                     label: 'Reset Refr..',
                                     isPrimary: true,
-                                    onPressed: (){},
+                                    onPressed: (){
+                                      resetRefresh();
+                                    },
                                   ),
                                 ],
                               ),
@@ -183,17 +194,23 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                                   ControlButton(
                                     icon: Icons.play_arrow,
                                     label: 'Relaunch LG',
-                                    onPressed: (){},
+                                    onPressed: (){
+                                        relaunchLg();
+                                    },
                                   ),
                                   ControlButton(
                                     icon: Icons.replay,
                                     label: 'Reboot LG',
-                                    onPressed: (){},
+                                    onPressed: (){
+                                      rebootLG(context);
+                                    },
                                   ),
                                   ControlButton(
                                     icon: Icons.power_settings_new,
                                     label: 'Shutdown LG',
-                                    onPressed: (){},
+                                    onPressed: (){
+                                      shutdownLg();
+                                    },
                                     isShutdown: true,
                                   ),
                                 ],
@@ -268,6 +285,82 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
       print('Session is null');
     }
   }*/
+
+  Future<void> relaunchLg() async {
+    SSHSession? session = await SSH(ref: ref).relaunchLG();
+    if (session != null) {
+      print(session.stdout);
+    }else{
+      print('Session is null');
+    }
+  }
+  rebootLG(context) async {
+    try {
+      for (var i = 1; i <= ref.read(rigsProvider); i++) {
+        await ref.read(sshClientProvider)?.run(
+            'sshpass -p ${ref.read(passwordProvider)} ssh -t lg$i "echo ${ref.read(passwordProvider)} | sudo -S reboot');
+      }
+    } catch (error) {
+      SnackBarWidget().showSnackBar(context: context, message: error.toString(), color: Colors.red);
+    }
+  }
+
+  Future<void> shutdownLg() async {
+    SSHSession? session = await SSH(ref: ref).shutdownLG(context);
+    if (session != null) {
+      print(session.stdout);
+    }else{
+      print('Session is null');
+    }
+  }
+
+  Future<void> setRefresh() async {
+    SSHSession? session = await SSH(ref: ref).setRefresh(context);
+    if (session != null) {
+      print(session.stdout);
+    }else{
+      print('Session is null');
+    }
+  }
+
+  Future<void> resetRefresh() async {
+    SSHSession? session = await SSH(ref: ref).resetRefresh(context);
+    if (session != null) {
+      print(session.stdout);
+    }else{
+      print('Session is null');
+    }
+  }
+
+  Future<void> cleanSlaves() async {
+    SSHSession? session = await SSH(ref: ref).cleanSlaves(context);
+    if (session != null) {
+      print(session.stdout);
+    }else{
+      print('Session is null');
+    }
+  }
+
+  Future<void> cleanKml() async{
+    SSHSession? session = await SSH(ref: ref).cleanKML(context);
+    if (session != null) {
+      print(session.stdout);
+    }else{
+      print('Session is null');
+    }
+  }
+
+
+ /* Future<void> resetRefresh() async {
+    SSHSession? session = await SSH(ref: ref).resetRefresh(context);
+    if (session != null) {
+      print(session.stdout);
+    }else{
+      print('Session is null');
+    }
+  }*/
+
+
 
   @override
   void dispose() {

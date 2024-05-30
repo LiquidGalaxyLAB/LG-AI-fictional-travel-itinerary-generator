@@ -43,7 +43,7 @@ class SSH {
   }
 
   /// For shutting down the rigs using SSH
-  void shutdownLG(context) async {
+   shutdownLG(context) async {
     try {
       for (var i = 1; i <= ref.read(rigsProvider); i++) {
         await ref.read(sshClientProvider)?.run(
@@ -56,7 +56,7 @@ class SSH {
   }
 
   /// For restarting the rigs using SSH
-  void relaunchLG() async {
+   relaunchLG() async {
     try {
       _client = ref.read(sshClientProvider);
       for (var i = 1; i <= ref.read(rigsProvider); i++) {
@@ -90,6 +90,21 @@ class SSH {
     } catch (e) {
       print('An error occurred while executing the command: $e');
       return null;
+    }
+  }
+
+  resetRefresh(context) async {
+    try {
+      for (var i = 2; i <= ref.read(rigsProvider); i++) {
+        String search =
+            '<href>##LG_PHPIFACE##kml\\/slave_$i.kml<\\/href><refreshMode>onInterval<\\/refreshMode><refreshInterval>2<\\/refreshInterval>';
+        String replace = '<href>##LG_PHPIFACE##kml\\/slave_$i.kml<\\/href>';
+
+        await ref.read(sshClientProvider)?.run(
+            'sshpass -p ${ref.read(passwordProvider)} ssh -t lg$i \'echo ${ref.read(passwordProvider)} | sudo -S sed -i "s/$search/$replace/" ~/earth/kml/slave/myplaces.kml\'');
+      }
+    } catch (error) {
+      SnackBarWidget().showSnackBar(context: context, message: error.toString(), color: Colors.red);
     }
   }
 
@@ -127,7 +142,7 @@ class SSH {
   }
 
   /// For disconnecting from the lg rigs
-  void disconnect(context, {bool snackBar = true}) async {
+  disconnect(context, {bool snackBar = true}) async {
     ref.read(sshClientProvider)?.close();
     ref
         .read(sshClientProvider.notifier)
@@ -140,8 +155,52 @@ class SSH {
     ref.read(connectedProvider.notifier).state = false;
   }
 
+  cleanKML(context) async {
+    try {
+      await stopOrbit(context);
+      await ref.read(sshClientProvider)?.run('echo "" > /tmp/query.txt');
+      await ref.read(sshClientProvider)?.run("echo '' > /var/www/html/kmls.txt");
+    } catch (error) {
+
+      await cleanKML(context);
+      // showSnackBar(
+      //     context: context, message: error.toString(), color: Colors.red);
+    }
+  }
+
+  cleanSlaves(context) async {
+    try {
+      for (var i = 2; i <= ref.read(rigsProvider); i++) {
+        await ref
+            .read(sshClientProvider)
+            ?.run("echo '' > /var/www/html/kml/slave_$i.kml");
+      }
+    } catch (error) {
+      await cleanSlaves(context);
+    }
+  }
+
+  stopOrbit(context) async {
+    try {
+      await ref.read(sshClientProvider)?.run('echo "exittour=true" > /tmp/query.txt');
+    } catch (error) {
+
+      stopOrbit(context);
+    }
+  }
+
+  rebootLG(context) async {
+    try {
+      for (var i = 1; i <= ref.read(rigsProvider); i++) {
+        await ref.read(sshClientProvider)?.run(
+            'sshpass -p ${ref.read(passwordProvider)} ssh -t lg$i "echo ${ref.read(passwordProvider)} | sudo -S reboot');
+      }
+    } catch (error) {
+      SnackBarWidget().showSnackBar(context: context, message: error.toString(), color: Colors.red);
+    }
+  }
   /// For refreshing the visualization
-  void setRefresh(context) async {
+  setRefresh(context) async {
     _client = ref.read(sshClientProvider);
     try {
       for (var i = 2; i <= ref.read(rigsProvider); i++) {
