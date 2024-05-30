@@ -29,10 +29,12 @@ AppBarTheme appBarTheme() {
 
 class AppColors {
   static const Color themeColor = Color(0xFF5257A5);
+  static const Color onBackgroundColor = Color(0xff262541);
   static const Color backgroundColor = Color(0xFF010213);
   static const Color textColor = Colors.white;
   static const Color navButtonsColor = Color(0xFF0F0F0F);
   static const Color secondaryColor = Color(0xFF1E1E2A);
   static const Color buttonColor = Color(0xFF3E3E4A);
   static const Color tertiaryColor = Color(0xFF272442);
+  static const Color connectionButtonColor = Color(0xff4CAF50);
 }

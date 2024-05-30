@@ -4,6 +4,8 @@ import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/home_page.dart'
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/splash_screen.dart';
 import 'package:lg_ai_travel_itinerary/main.dart';
 
+import '../../presentation/ui/settings_screen.dart';
+
 class AppRoutes {
   static Route onGenerateRoutes(RouteSettings settings){
     switch(settings.name){
@@ -11,6 +13,8 @@ class AppRoutes {
         return _materialRoute(const SplashScreen());
       case '/homePage':
         return _fadeRoute(HomePage());
+      case '/settings':
+        return _fadeRoute(const ConnectionScreen());
       default:
         return _materialRoute(const MyApp());
     }

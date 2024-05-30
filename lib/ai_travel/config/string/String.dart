@@ -1,4 +1,9 @@
 class Strings{
   static const String appName = "LG AI Travel Itinerary";
   static const String noCitiesAdded = "No cities added yet.";
+  static const String settings = "Settings";
+  static const String connectToLg = "Connect to LG";
+  static const String connected = "Connected";
+  static const String disconnected = "Disconnected";
+  static const String liquidGalaxyManagement = "Liquid Galaxy Management";
 }

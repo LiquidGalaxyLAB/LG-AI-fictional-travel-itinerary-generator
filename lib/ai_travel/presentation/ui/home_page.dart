@@ -1,54 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        title: const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: const CustomAppBar(),
+      drawer: Drawer(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(8),
+            bottomRight: Radius.circular(8),
+          ),
+        ),
+        child: Container(
+          color: const Color(0xff1E1E1E),
+          child: ListView(
+            padding: EdgeInsets.zero,
             children: [
-              Text(
-                Strings.appName,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              const DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Color(0xff25253e)
+                ),
+                child: Text(
+                  Strings.appName,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
                 ),
               ),
-              SizedBox(height: 2),
-              Row(
-                children: [
-                  Icon(Icons.circle, color: Colors.green, size: 14),
-                  SizedBox(width: 8),
-                  Text(
-                    'Connected',
-                    style: TextStyle(color: Colors.green, fontSize: 14),
-                  ),
-                ],
+              ListTile(
+                leading: const Icon(Icons.home,color: Colors.white,),
+                title: const Text('Home',style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  // Handle home navigation
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person,color: Colors.white,),
+                title: Text('Profile',style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  // Handle profile navigation
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.settings,color: Colors.white,),
+                title: Text('Settings', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  // Handle settings navigation
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.logout,color: Colors.white,),
+                title: Text('Logout', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  // Handle logout navigation
+                },
               ),
             ],
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search, color: Colors.white),
-            onPressed: () {
-              // Add search functionality here
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.settings, color: Colors.white),
-            onPressed: () {
-              // Add settings functionality here
-            },
-          ),
-        ],
       ),
       body: const Center(
         child: Text(
@@ -63,8 +78,14 @@ class HomePage extends StatelessWidget {
         ),
         child: FloatingActionButton.extended(
           onPressed: () {},
-          label: const Text('Add city',style: TextStyle(color: Colors.white),),
-          icon: const Icon(Icons.add,color: Colors.white,),
+          label: const Text(
+            'Add city',
+            style: TextStyle(color: Colors.white),
+          ),
+          icon: const Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
           backgroundColor: AppColors.tertiaryColor,
         ),
       ),
