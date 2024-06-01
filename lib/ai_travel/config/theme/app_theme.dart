@@ -37,4 +37,5 @@ class AppColors {
   static const Color buttonColor = Color(0xFF3E3E4A);
   static const Color tertiaryColor = Color(0xFF272442);
   static const Color connectionButtonColor = Color(0xff4CAF50);
+  static const Color textFieldColor = Color(0xff353535);
 }

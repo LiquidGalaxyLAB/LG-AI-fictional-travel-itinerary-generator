@@ -9,74 +9,72 @@ class DestinationCard extends StatelessWidget {
   final String coordinates;
   final String description;
 
-  DestinationCard({
+  const DestinationCard({
     required this.image,
     required this.title,
     required this.location,
     required this.coordinates,
     required this.description,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 300,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: AppColors.secondaryColor, // Dark background color
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min, // Ensures height adjusts to content
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              'assets/images/taj.png', // Make sure this path is correct for your asset
-              height: 150,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
+            child: image,
           ),
-          const SizedBox(height: 12),
-          const Text(
-            'Agra',
-            style: TextStyle(
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: const TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'India',
-            style: TextStyle(
+          const SizedBox(height: 4),
+          Text(
+            location,
+            style: const TextStyle(
               color: Colors.white70,
-              fontSize: 18,
+              fontSize: 16,
             ),
           ),
-          const SizedBox(height: 8),
-          const Row(
+          const SizedBox(height: 4),
+          Row(
             children: [
-              Icon(Icons.location_on, color: Colors.white70),
-              SizedBox(width: 4),
+              const Icon(Icons.location_on, color: Colors.white70),
+              const SizedBox(width: 4),
               Text(
-                '27.1751° N, 78.0421° E',
-                style: TextStyle(
+                coordinates,
+                style: const TextStyle(
                   color: Colors.white70,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Once a bustling hub of the Mughal Empire, Agra stands as a timeless testament...',
-            style: TextStyle(
-              color: Colors.white70,
+          const SizedBox(height: 8),
+          Expanded(
+            child: Text(
+              description,
+              style: const TextStyle(
+                color: Colors.white70,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(
@@ -88,9 +86,9 @@ class DestinationCard extends StatelessWidget {
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.play_circle,color: Colors.white,),
+                Icon(Icons.play_circle, color: Colors.white),
                 SizedBox(width: 8),
-                Text('Explore',style: TextStyle(color: Colors.white)),
+                Text('Explore', style: TextStyle(color: Colors.white)),
               ],
             ),
           ),

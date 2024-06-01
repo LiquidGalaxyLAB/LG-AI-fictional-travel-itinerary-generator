@@ -5,5 +5,7 @@ class Strings{
   static const String connectToLg = "Connect to LG";
   static const String connected = "Connected";
   static const String disconnected = "Disconnected";
+  static const String enterDestination = "Enter your destination";
+  static const String exampleAddCity = "I want to explore North India";
   static const String liquidGalaxyManagement = "Liquid Galaxy Management";
 }

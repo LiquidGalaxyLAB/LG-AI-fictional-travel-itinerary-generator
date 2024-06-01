@@ -3,11 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/splash_screen.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'ai_travel/config/route/routes.dart';
 
-void main() {
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  try{
+    await dotenv.load(fileName: "keys.env");
+  } catch (e) {
+    print("Please create keys.env file in the root directory and also in pubspec.yaml file");
+  }
   SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
       .then((_) {
     runApp(const ProviderScope(child: MyApp()));
