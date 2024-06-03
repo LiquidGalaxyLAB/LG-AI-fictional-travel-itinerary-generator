@@ -1,11 +1,43 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:groq/groq.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/data/model/GroqModel.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/destination_card.dart';
 
-class HomePage extends StatelessWidget {
+import '../../data/service/apiService.dart';
+
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+
+  @override
+  void initState() {
+    _getResponse();
+    super.initState();
+  }
+
+  _getResponse() async {
+    GroqModelNew? groqModelNew = await GroqApiService().sendPostRequest("Provide details about one eating place in Mumbai including its name, coordinates in array format, and a brief description in JSON format");
+    var response = groqModelNew!.choices?[0].message?.content;
+    // Remove "```json" from the beginning
+    response = response?.substring(7);
+    // Remove "```" from the end
+    response = response?.substring(0, response.length - 3);
+    Map<String, dynamic> jsonMap = jsonDecode(response!);
+    Place place = Place.fromJson(jsonMap);
+    print('Name: ${place.name}');
+    print('Location: ${place.location}');
+    print('Description: ${place.description}');
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -75,23 +75,42 @@ class DestinationCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.buttonColor, // Button background color
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.play_circle, color: Colors.white),
-                SizedBox(width: 8),
-                Text('Explore', style: TextStyle(color: Colors.white)),
-              ],
-            ),
+          CustomButtonWidget(
+            onPressed: () {
+            },
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class CustomButtonWidget extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const CustomButtonWidget({
+    required this.onPressed,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        onPressed();
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.buttonColor, // Button background color
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.play_circle, color: Colors.white),
+          SizedBox(width: 8),
+          Text('Explore', style: TextStyle(color: Colors.white)),
         ],
       ),
     );

@@ -11,7 +11,7 @@ void main() async{
   try{
     await dotenv.load(fileName: "keys.env");
   } catch (e) {
-    print("Please create keys.env file in the root directory and also in pubspec.yaml file");
+    print("Please create keys.env file in the root repository and also in pubspec.yaml file");
   }
   SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
       .then((_) {
