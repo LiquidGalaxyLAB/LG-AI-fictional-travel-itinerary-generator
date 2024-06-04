@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/use_case/api_use_case.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/destination_card.dart';
+
+import '../../data/model/GroqModel.dart';
+import '../../injection_container.dart';
 
 class AddCity extends StatefulWidget {
   const AddCity({super.key});
@@ -14,6 +18,22 @@ class AddCity extends StatefulWidget {
 }
 
 class _AddCityState extends State<AddCity> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getResponse();
+  }
+
+  void _getResponse() async {
+    final useCase = sl.get<GetPlaceDetailUseCase>(); // Inject with GetIt
+    Place place = await useCase.getPlace("Mumbai");
+    print('Name: ${place.name}');
+    print('Location: ${place.location}');
+    print('Description: ${place.description}');
+  }
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;

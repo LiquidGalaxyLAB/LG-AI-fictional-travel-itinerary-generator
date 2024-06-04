@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    _getResponse();
+    /*_getResponse();*/
     super.initState();
   }
 

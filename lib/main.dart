@@ -5,8 +5,10 @@ import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'ai_travel/config/route/routes.dart';
+import 'ai_travel/injection_container.dart';
 
 void main() async{
+  await initializeDependencies();
   WidgetsFlutterBinding.ensureInitialized();
   try{
     await dotenv.load(fileName: "keys.env");
