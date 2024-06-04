@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/string/String.dart';
 import '../providers/connection_providers.dart';
 class CustomAppBar extends ConsumerStatefulWidget implements PreferredSizeWidget{
-  const CustomAppBar({super.key});
-
+  final isHomePage;
+  const CustomAppBar({Key? key, this.isHomePage = false}) : super(key: key);
   @override
   _CustomAppBarState createState() => _CustomAppBarState();
 
@@ -45,7 +45,8 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
           ],
         ),
       ),
-      actions: [
+      actions: widget.isHomePage
+          ? [
         IconButton(
           icon: const Icon(Icons.search, color: Colors.white),
           onPressed: () {
@@ -58,7 +59,8 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
             Navigator.pushNamed(context, '/settings');
           },
         ),
-      ],
+      ]
+          : null,
     );
   }
 }

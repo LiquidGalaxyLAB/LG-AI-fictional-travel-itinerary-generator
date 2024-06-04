@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/kml/NamePlaceBallon.dart';
 import '../../presentation/providers/connection_providers.dart';
 import '../../presentation/widgets/snack_bar.dart';
 
@@ -52,6 +53,78 @@ class SSH {
     } catch (error) {
       customWidgets.showSnackBar(
           context: context, message: error.toString(), color: Colors.red);
+    }
+  }
+
+  Future<String> renderInSlave(context, int slaveNo, String kml) async {
+    try {
+      await ref
+          .read(sshClientProvider)
+          ?.run("echo '$kml' > /var/www/html/kml/slave_$slaveNo.kml");
+      return kml;
+    } catch (error) {
+      customWidgets.showSnackBar(
+          context: context, message: error.toString(), color: Colors.red);
+      return BalloonMakers.blankBalloon();
+    }
+  }
+  cleanBalloon(context) async {
+    try {
+      String blank = '''
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+  <Document>
+  </Document>
+</kml>''';
+      await ref.read(sshClientProvider)?.run(
+          "echo '${BalloonMakers
+              .blankBalloon()}' > /var/www/html/kml/slave_${ref.read(
+              leftmostRigProvider)}.kml");
+    } catch (error) {
+      // await connectionRetry(context);
+      await cleanBalloon(context);
+    }
+  }
+  Future ChatResponseBalloon(String data) async {
+    int rigs = 4;
+    _client = ref.read(sshClientProvider);
+    rigs = ref.read(rightmostRigProvider);
+    String openLogoKML =
+    '''<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+ <name>About Data</name>
+ <Style id="about_style">
+   <BalloonStyle>
+     <textColor>ffffffff</textColor>
+     <text>
+        <h2>$data</h2>
+       
+        
+     </text>
+     <bgColor>ff15151a</bgColor>
+   </BalloonStyle>
+ </Style>
+ <Placemark id="ab">
+   <description>
+   </description>
+   <LookAt>
+     <longitude>0</longitude>
+     <latitude>0</latitude>
+    
+   </LookAt>
+   <styleUrl>#about_style</styleUrl>
+   <gx:balloonVisibility>1</gx:balloonVisibility>
+   <Point>
+     <coordinates>0,0,0</coordinates>
+   </Point>
+ </Placemark>
+</Document>
+</kml>''';
+    try {
+      await _client?.execute("echo '$openLogoKML' > /var/www/html/kml/slave_2.kml");
+    } catch (e) {
+      return Future.error(e);
     }
   }
 

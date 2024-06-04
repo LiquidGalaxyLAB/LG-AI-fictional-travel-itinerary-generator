@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/use_case/api_use_case.dart';
@@ -8,30 +9,41 @@ import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.da
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/destination_card.dart';
 
 import '../../data/model/GroqModel.dart';
+import '../../domain/ssh/SSH.dart';
 import '../../injection_container.dart';
 
-class AddCity extends StatefulWidget {
+class AddCity extends ConsumerStatefulWidget {
   const AddCity({super.key});
 
   @override
-  State<AddCity> createState() => _AddCityState();
+  _AddCityState createState() => _AddCityState();
 }
 
-class _AddCityState extends State<AddCity> {
+class _AddCityState extends ConsumerState<AddCity> {
+  TextEditingController _textEditingController = TextEditingController();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _getResponse();
+    /*_getResponse();*/
   }
 
-  void _getResponse() async {
+  void _getResponse(String poi) async {
+    print('Getting place details for $poi');
     final useCase = sl.get<GetPlaceDetailUseCase>(); // Inject with GetIt
-    Place place = await useCase.getPlace("Mumbai");
+    Place place = await useCase.getPlace(poi);
+    _loadChatResponse(place.description!);
     print('Name: ${place.name}');
     print('Location: ${place.location}');
     print('Description: ${place.description}');
+  }
+
+  Future<void> _loadChatResponse(String response) async {
+    await SSH(ref: ref).cleanSlaves(context);
+    await SSH(ref: ref).cleanBalloon(context);
+    await SSH(ref: ref).ChatResponseBalloon(response);
+    await SSH(ref:ref).stopOrbit(context);
   }
 
   @override
@@ -96,6 +108,7 @@ class _AddCityState extends State<AddCity> {
                                   child: TextField(
                                     cursorColor: AppColors.textColor,
                                     textAlign: TextAlign.start,
+                                    controller: _textEditingController,
                                     textAlignVertical: TextAlignVertical.top,
                                     maxLines: null,
                                     expands: true,
@@ -127,7 +140,7 @@ class _AddCityState extends State<AddCity> {
                                     alignment: Alignment.center,
                                     child: CustomButtonWidget(
                                       onPressed: () {
-                                        // Add your functionality here
+                                        _getResponse(_textEditingController.text);
                                       },
                                     )
                                 ),

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:groq/groq.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/GroqModel.dart';
@@ -20,29 +21,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   @override
-  void initState() {
-    /*_getResponse();*/
-    super.initState();
-  }
-
-  _getResponse() async {
-    GroqModelNew? groqModelNew = await GroqApiService().sendPostRequest("Provide details about one eating place in Mumbai including its name, coordinates in array format, and a brief description in JSON format");
-    var response = groqModelNew!.choices?[0].message?.content;
-    // Remove "```json" from the beginning
-    response = response?.substring(7);
-    // Remove "```" from the end
-    response = response?.substring(0, response.length - 3);
-    Map<String, dynamic> jsonMap = jsonDecode(response!);
-    Place place = Place.fromJson(jsonMap);
-    print('Name: ${place.name}');
-    print('Location: ${place.location}');
-    print('Description: ${place.description}');
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(),
+      appBar: const CustomAppBar(isHomePage: true),
       drawer: const DrawerWidget(),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -126,7 +107,7 @@ class DrawerWidget extends StatelessWidget {
               leading: const Icon(Icons.home,color: Colors.white,),
               title: const Text('Home',style: TextStyle(color: Colors.white)),
               onTap: () {
-                // Handle home navigation
+
               },
             ),
             ListTile(
@@ -137,17 +118,17 @@ class DrawerWidget extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.settings,color: Colors.white,),
-              title: Text('Settings', style: TextStyle(color: Colors.white)),
+              leading: Icon(Iconsax.settings,color: Colors.white,),
+              title: Text('Liquid Galaxy Management', style: TextStyle(color: Colors.white)),
               onTap: () {
-                // Handle settings navigation
+                Navigator.pushNamed(context, '/galaxyManagement');
               },
             ),
             ListTile(
               leading: Icon(Icons.logout,color: Colors.white,),
               title: Text('Logout', style: TextStyle(color: Colors.white)),
               onTap: () {
-                // Handle logout navigation
+
               },
             ),
           ],

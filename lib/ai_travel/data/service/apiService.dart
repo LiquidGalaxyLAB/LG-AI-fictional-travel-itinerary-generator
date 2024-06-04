@@ -5,7 +5,7 @@ import 'package:lg_ai_travel_itinerary/ai_travel/data/model/GroqModel.dart';
 
 class GroqApiService {
   String myApiKey = 'your-api-key-here';
-  GroqModel myModel = GroqModel.gemma7bit; // or any other model you want to useration
+  GroqModel myModel = GroqModel.gemma7bit;
 
   Future<GroqModelNew?> sendPostRequest(String userPrompt) async {
     await dotenv.load(fileName: 'keys.env');
@@ -33,17 +33,14 @@ class GroqApiService {
       );
 
       if (response.statusCode == 200) {
-        // Successfully received a response
         print('Response data: ${response.data}');
         return GroqModelNew.fromJson(response.data);
       } else {
-        // An error occurred
         print('Request failed with status: ${response.statusCode}');
         print('Response data: ${response.data}');
         return null;
       }
     } catch (e) {
-      // Handle any errors that occur during the request
       print('Error: $e');
     }
     return null;

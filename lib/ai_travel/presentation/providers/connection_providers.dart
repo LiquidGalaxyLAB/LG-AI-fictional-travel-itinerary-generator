@@ -2,6 +2,8 @@ import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../core/kml/NamePlaceBallon.dart';
+
 StateProvider<SSHClient?> sshClientProvider = StateProvider(
       (ref) => null,
 );
@@ -20,6 +22,7 @@ StateProvider<bool> isLoadingProvider = StateProvider((ref) => false);
 StateProvider<bool> isSpeaking = StateProvider((ref) => false);
 StateProvider<bool> isVoiceStopped = StateProvider((ref) => false);
 StateProvider<bool> isNewChat = StateProvider((ref) => false);
+StateProvider<String> lastBalloonProvider = StateProvider((ref) => BalloonMakers.blankBalloon());
 StateProvider<CameraPosition?> lastGMapPositionProvider =
 StateProvider((ref) => null);
 

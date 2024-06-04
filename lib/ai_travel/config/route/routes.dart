@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/home_page.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/screens/galaxy_management.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/splash_screen.dart';
 import 'package:lg_ai_travel_itinerary/main.dart';
 
@@ -18,6 +19,8 @@ class AppRoutes {
         return _fadeRoute(const AddCity());
       case '/settings':
         return _fadeRoute(const ConnectionScreen());
+      case '/galaxyManagement':
+        return _materialRoute(const LiquidGalaxyManagement());
       default:
         return _materialRoute(const MyApp());
     }
