@@ -1,7 +1,8 @@
 import 'dart:convert';
 
+import 'package:lg_ai_travel_itinerary/ai_travel/core/utils/constants.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/domain/repository/groq/ApiRepository.dart';
-
 import '../../../data/model/GroqModel.dart';
 import '../../../data/service/apiService.dart';
 
@@ -13,10 +14,21 @@ class GetPLaceRepositoryImpl implements GetPlaceDetailRepository {
   @override
   Future<Place> getPlaceDetails(String city) async {
     GroqModelNew? groqModelNew = await
-    groqApiService.sendPostRequest("Provide details about one eating place in $city including its name, coordinates in array format, and a brief description in JSON format no Markdown");
+    groqApiService.sendPostRequest(Const.testPrompts[1].replaceAll("\$city", city));
     var response = groqModelNew!.choices?[0].message?.content;
-    response = response?.substring(7, response.length - 3); //this is done to remove the ```json from the beginning and ``` from the end
+    /*response = response?.substring(7, response.length - 3);*/ //this is done to remove the ```json from the beginning and ``` from the end
+    print('Response: $response');
     Map<String, dynamic> jsonMap = jsonDecode(response!);
     return Place.fromJson(jsonMap);
+  }
+
+  @override
+  Future<Places> getPlacesDetails(String city) async{
+    GroqResponseModel? groqModelNew = await groqApiService.sendPostPrompt(Const.testPrompts[1].replaceAll("\$city", city));
+    var response = groqModelNew!.choices?[0].message?.content;
+    response = response?.substring(7, response.length - 3); //this is done to remove the ```json from the beginning and ``` from the end
+    print('Response: $response');
+    Map<String, dynamic> jsonMap = jsonDecode(response!);
+    return Places.fromJson(jsonMap);
   }
 }

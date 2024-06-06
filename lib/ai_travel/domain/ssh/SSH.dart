@@ -182,14 +182,15 @@ class SSH {
   }
 
   /// This is for locating a place via SSH
-  Future<SSHSession?> locatePlace(String place) async {
+  Future<SSHSession?> search(String place) async {
     try {
       _client = ref.read(sshClientProvider);
       if (_client == null) {
         print('SSH client is not initialized.');
         return null;
       }
-      final session = await _client!.execute('echo "search=$place" >/tmp/query.txt');
+      final session =
+      await _client!.execute('echo "search=$place" >/tmp/query.txt');
       return session;
     } catch (e) {
       print('An error occurred while executing the command: $e');

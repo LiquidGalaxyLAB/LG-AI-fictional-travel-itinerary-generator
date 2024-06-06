@@ -1,9 +1,11 @@
+import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/use_case/api_use_case.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/destination_card.dart';
@@ -21,29 +23,68 @@ class AddCity extends ConsumerStatefulWidget {
 
 class _AddCityState extends ConsumerState<AddCity> {
   TextEditingController _textEditingController = TextEditingController();
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    /*_getResponse();*/
-  }
+  late Place place = Place(name: "", location: [], description: "", address: '',place: '');
+  late Places places = Places(name: [],description: [],address: []);
 
   void _getResponse(String poi) async {
     print('Getting place details for $poi');
-    final useCase = sl.get<GetPlaceDetailUseCase>(); // Inject with GetIt
-    Place place = await useCase.getPlace(poi);
-    _loadChatResponse(place.description!);
-    print('Name: ${place.name}');
-    print('Location: ${place.location}');
+    /*Place place = await getResponse(poi);*/
+    places = await getResponses(poi);
+    print('Name: ${places.name![0]}');
+   /* _loadChatResponse(place);*/
+    _loadChatResponses(places);
+    print('Name: ${place.place}');
+    print('address: ${place.address}');
     print('Description: ${place.description}');
   }
 
-  Future<void> _loadChatResponse(String response) async {
+  Future<Place> getResponse(String poi) async{
+    final useCase = sl.get<GetPlaceDetailUseCase>(); // Inject with GetIt
+    /*place = await useCase.getPlace(poi);*/
+    places = await useCase.getPlaces(poi);
+    return place;
+  }
+
+  Future<Places> getResponses(String poi) async{
+    final useCase = sl.get<GetPlaceDetailUseCase>(); // Inject with GetIt
+    places = await useCase.getPlaces(poi);
+    return places;
+  }
+
+  Future<void> _loadChatResponse(Place response) async {
     await SSH(ref: ref).cleanSlaves(context);
     await SSH(ref: ref).cleanBalloon(context);
-    await SSH(ref: ref).ChatResponseBalloon(response);
+    if(response.description != null){
+      await SSH(ref: ref).ChatResponseBalloon(response.description!);
+    }else{
+      await SSH(ref: ref).ChatResponseBalloon('No description available');
+    }
+    _navigate(place.address!);
     await SSH(ref:ref).stopOrbit(context);
+  }
+  //do it for places
+  Future<void> _loadChatResponses(Places response) async {
+    for(int i=0;i<response.name!.length;i++){
+      Future.delayed(Duration(seconds: 2 * (i + 1)), () async{
+        await SSH(ref: ref).cleanSlaves(context);
+        await SSH(ref: ref).cleanBalloon(context);
+        if(response.description![i] != null){
+          await SSH(ref: ref).ChatResponseBalloon(response.description![i]);
+        }else{
+          await SSH(ref: ref).ChatResponseBalloon('No description available');
+        }
+        _navigate(response.address![i]);
+        await SSH(ref:ref).stopOrbit(context);
+      });
+    }
+  }
+
+  Future<void> _navigate(String location) async {
+    print('Navigating to $location');
+    SSHSession? session = await SSH(ref: ref).search("$location");
+    if (session != null) {
+      print(session.stdout);
+    }
   }
 
   @override
@@ -141,6 +182,34 @@ class _AddCityState extends ConsumerState<AddCity> {
                                     child: CustomButtonWidget(
                                       onPressed: () {
                                         _getResponse(_textEditingController.text);
+                                      },
+                                    )
+                                ),
+                                Container(
+                                    alignment: Alignment.center,
+                                    child: CustomButtonWidget(
+                                      text: "explore place",
+                                      onPressed: () async{
+                                        if(place.name==null){
+                                          print('Navigating to ${place.place}, ${place.address!}');
+                                          _navigate("${place.place}, ${place.address!}");
+                                        }else{
+                                          print('Navigating to ${place.name}, ${place.address!}');
+                                          _navigate("${place.name}, ${place.address!}");
+                                          for(int i=0;i<places.name!.length;i++){
+                                            if(i==0){
+                                              Future.delayed(Duration(seconds: 2 * (i + 1)), () async{
+                                                print('Navigating to ${places.name![i]}, ${places.address![i]}');
+                                                _navigate("${places.name![i]}, ${places.address![i]}");
+                                              });
+                                            }else{
+                                              Future.delayed(Duration(seconds: 8 * (i + 1)), () async{
+                                                print('Navigating to ${places.name![i]}, ${places.address![i]}');
+                                                _navigate("${places.name![i]}, ${places.address![i]}");
+                                              });
+                                            }
+                                          }
+                                        }
                                       },
                                     )
                                 ),

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-class GroqModelNew {
+class GroqResponseModel {
   String? id;
   String? object;
   int? created;
@@ -10,7 +10,7 @@ class GroqModelNew {
   String? systemFingerprint;
   XGroq? xGroq;
 
-  GroqModelNew({
+  GroqResponseModel({
     this.id,
     this.object,
     this.created,
@@ -21,8 +21,8 @@ class GroqModelNew {
     this.xGroq,
   });
 
-  factory GroqModelNew.fromJson(Map<String, dynamic> json) {
-    return GroqModelNew(
+  factory GroqResponseModel.fromJson(Map<String, dynamic> json) {
+    return GroqResponseModel(
       id: json['id'],
       object: json['object'],
       created: json['created'],
@@ -108,44 +108,39 @@ class Message {
   }
 }
 
-class Place {
-  final List<double>? location;
-  final String? address;
-  final String? name;
-  final String? description;
-  final String? place;
+class Places {
+  final List<String>? name;
+  final List<String>? address;
+  final List<String>? description;
 
-  Place({
-    required this.location,
+  Places({
     required this.name,
-    required this.description,
     required this.address,
-    required this.place,
+    required this.description,
   });
 
-  // Factory constructor to create a new Place instance from a map.
-  factory Place.fromJson(Map<String, dynamic> json) {
-    return Place(
-      location: json['coordinates'] != null ? List<double>.from(json['coordinates']) : null,
-      name: json['name'],
-      description: json['description'],
-      address: json['address'],
-      place: json['place'],
+  factory Places.fromJson(Map<String, dynamic> json) {
+    List<dynamic> placesJson = json['places'];
+    List<String> names = placesJson.map<String>((placeJson) => placeJson['name']).toList();
+    List<String> addresses = placesJson.map<String>((placeJson) => placeJson['address']).toList();
+    List<String> descriptions = placesJson.map<String>((placeJson) => placeJson['description']).toList();
+
+    return Places(
+      name: names,
+      address: addresses,
+      description: descriptions,
     );
   }
 
-  // Method to convert a Place instance to a map.
+
   Map<String, dynamic> toJson() {
     return {
-      'coordinates': location,
       'name': name,
-      'description': description,
       'address': address,
-      'place': place,
+      'description': description,
     };
   }
 }
-
 
 
 class Usage {
@@ -207,5 +202,3 @@ class XGroq {
     };
   }
 }
-
-

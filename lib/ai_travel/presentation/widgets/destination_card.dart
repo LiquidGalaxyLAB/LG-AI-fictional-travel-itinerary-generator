@@ -87,9 +87,10 @@ class DestinationCard extends StatelessWidget {
 
 class CustomButtonWidget extends StatelessWidget {
   final VoidCallback onPressed;
-
+  final String text;
   const CustomButtonWidget({
     required this.onPressed,
+    this.text = 'Explore',
     Key? key,
   }) : super(key: key);
 
@@ -105,12 +106,12 @@ class CustomButtonWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
       ),
-      child: const Row(
+      child:  Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.play_circle, color: Colors.white),
           SizedBox(width: 8),
-          Text('Explore', style: TextStyle(color: Colors.white)),
+          Text(text, style: TextStyle(color: Colors.white)),
         ],
       ),
     );
