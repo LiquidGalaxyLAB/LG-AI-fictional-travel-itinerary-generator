@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
 
 class DestinationCard extends StatelessWidget {
@@ -109,7 +110,7 @@ class CustomButtonWidget extends StatelessWidget {
       child:  Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.play_circle, color: Colors.white),
+          Icon(Iconsax.play_circle, color: Colors.white),
           SizedBox(width: 8),
           Text(text, style: TextStyle(color: Colors.white)),
         ],

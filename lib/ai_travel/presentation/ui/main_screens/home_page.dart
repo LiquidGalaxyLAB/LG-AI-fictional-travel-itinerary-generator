@@ -9,7 +9,7 @@ import 'package:lg_ai_travel_itinerary/ai_travel/data/model/GroqModel.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/destination_card.dart';
 
-import '../../data/service/apiService.dart';
+import '../../../data/service/apiService.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -112,9 +112,9 @@ class DrawerWidget extends StatelessWidget {
             ),
             ListTile(
               leading: Icon(Icons.person,color: Colors.white,),
-              title: Text('Profile',style: TextStyle(color: Colors.white)),
+              title: Text('subPoiPage',style: TextStyle(color: Colors.white)),
               onTap: () {
-                // Handle profile navigation
+                Navigator.pushNamed(context, '/generatedSubPoiPage');
               },
             ),
             ListTile(

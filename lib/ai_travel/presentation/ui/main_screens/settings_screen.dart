@@ -10,8 +10,8 @@ import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.da
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/snack_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../domain/ssh/SSH.dart';
-import '../providers/connection_providers.dart';
+import '../../../domain/ssh/SSH.dart';
+import '../../providers/connection_providers.dart';
 
 
 class ConnectionScreen extends ConsumerStatefulWidget {

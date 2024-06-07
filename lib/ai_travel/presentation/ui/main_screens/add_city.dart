@@ -10,9 +10,10 @@ import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/use_case/api_us
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/destination_card.dart';
 
-import '../../data/model/GroqModel.dart';
-import '../../domain/ssh/SSH.dart';
-import '../../injection_container.dart';
+import '../../../data/model/GroqModel.dart';
+import '../../../domain/ssh/SSH.dart';
+import '../../../injection_container.dart';
+import 'generated_sub_poi_page.dart';
 
 class AddCity extends ConsumerStatefulWidget {
   const AddCity({super.key});
@@ -25,7 +26,7 @@ class _AddCityState extends ConsumerState<AddCity> {
   TextEditingController _textEditingController = TextEditingController();
   late Place place = Place(name: "", location: [], description: "", address: '',place: '');
   late Places places = Places(name: [],description: [],address: []);
-
+  final isLoading = true;
   void _getResponse(String poi) async {
     print('Getting place details for $poi');
     /*Place place = await getResponse(poi);*/
@@ -52,14 +53,14 @@ class _AddCityState extends ConsumerState<AddCity> {
   }
 
   Future<void> _loadChatResponse(Place response) async {
-    await SSH(ref: ref).cleanSlaves(context);
-    await SSH(ref: ref).cleanBalloon(context);
+    /*await SSH(ref: ref).cleanSlaves(context);
+    await SSH(ref: ref).cleanBalloon(context);*/
     if(response.description != null){
       await SSH(ref: ref).ChatResponseBalloon(response.description!);
     }else{
       await SSH(ref: ref).ChatResponseBalloon('No description available');
     }
-    _navigate(place.address!);
+    /*_navigate(place.address!);*/
     await SSH(ref:ref).stopOrbit(context);
   }
   //do it for places
@@ -73,7 +74,6 @@ class _AddCityState extends ConsumerState<AddCity> {
         }else{
           await SSH(ref: ref).ChatResponseBalloon('No description available');
         }
-        _navigate(response.address![i]);
         await SSH(ref:ref).stopOrbit(context);
       });
     }
@@ -210,6 +210,11 @@ class _AddCityState extends ConsumerState<AddCity> {
                                             }
                                           }
                                         }
+                                        Navigator.push(context,
+                                          MaterialPageRoute(builder: (context) =>
+                                              GeneratedSubPoiPage(places: places)
+                                          )
+                                        );
                                       },
                                     )
                                 ),
@@ -227,5 +232,8 @@ class _AddCityState extends ConsumerState<AddCity> {
         ),
       ),
     );
+  }
+  Future<void> navigateToSubPoiPage(Places places) async {
+    Navigator.pushNamed(context, '/generatedSubPoiPage',arguments: places);
   }
 }
