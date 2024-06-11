@@ -126,6 +126,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     bool? result = await ssh.connectToLG(context);
     ref.read(connectedProvider.notifier).state = result!;
     if(ref.read(connectedProvider)){
+      ssh.ChatResponseBalloon("this is adadf");
       ssh.execute();
     }
   }
@@ -266,8 +267,6 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
 }
 
 //Fix this Control button class
-
-
 class ControlButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -285,11 +284,18 @@ class ControlButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Calculate button width and height based on screen dimensions
+    final buttonWidth = screenWidth * 0.2; // 20% of screen width
+    final buttonHeight = screenHeight * 0.1; // 10% of screen height
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SizedBox(
-        height: 48,
-        width: 150,
+        height: buttonHeight,
+        width: buttonWidth,
         child: ElevatedButton.icon(
           onPressed: onPressed,
           icon: Icon(icon, size: 24),
@@ -308,6 +314,3 @@ class ControlButton extends StatelessWidget {
     );
   }
 }
-
-
-

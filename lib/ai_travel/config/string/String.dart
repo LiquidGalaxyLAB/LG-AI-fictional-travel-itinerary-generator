@@ -8,4 +8,5 @@ class Strings{
   static const String enterDestination = "Enter your destination";
   static const String exampleAddCity = "I want to explore North India";
   static const String liquidGalaxyManagement = "Liquid Galaxy Management";
+  static const String areYouSure = "Are you sure?";
 }

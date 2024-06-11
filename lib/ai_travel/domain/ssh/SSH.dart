@@ -233,7 +233,7 @@ class SSH {
     try {
       await stopOrbit(context);
       await ref.read(sshClientProvider)?.run('echo "" > /tmp/query.txt');
-      await ref.read(sshClientProvider)?.run("echo '' > /var/www/html/kmls.txt");
+      await ref.read(sshClientProvider)?.run("echo '' > /var/www/html/kml/slave_2.txt");
     } catch (error) {
 
       await cleanKML(context);
@@ -243,11 +243,17 @@ class SSH {
   }
 
   cleanSlaves(context) async {
+    String blank = '''
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+  <Document>
+  </Document>
+</kml>''';
     try {
       for (var i = 2; i <= ref.read(rigsProvider); i++) {
         await ref
             .read(sshClientProvider)
-            ?.run("echo '' > /var/www/html/kml/slave_$i.kml");
+            ?.run("echo '$blank' > /var/www/html/kml/slave_$i.kml");
       }
     } catch (error) {
       await cleanSlaves(context);

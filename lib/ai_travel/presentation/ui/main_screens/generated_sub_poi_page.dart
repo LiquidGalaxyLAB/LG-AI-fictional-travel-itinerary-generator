@@ -23,9 +23,9 @@ class _GeneratedSubPoiPageState extends State<GeneratedSubPoiPage> {
     print('Places: ${widget.places.name}');
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
-    final places = ModalRoute.of(context)!.settings.arguments;
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     double paddingValue = width * 0.2;
@@ -72,14 +72,15 @@ class _GeneratedSubPoiPageState extends State<GeneratedSubPoiPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  "Mumbai",
+                                Text(
+                                  widget.places.title!,
                                   // Replace with your text
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 32.0,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                                const SizedBox(height: 10.0),
                                 const Row(
                                   children: [
                                     Icon(
@@ -118,23 +119,33 @@ class _GeneratedSubPoiPageState extends State<GeneratedSubPoiPage> {
                                   ],
                                 ),
                                 SizedBox(height: 10.0),
-                                 const Text(
-                                    "Agra is a city on the banks of the Yamuna river in the Indian state of Uttar Pradesh. It is 206 kilometres south of the national capital New Delhi. Agra is the fourth-most populous city in Uttar Pradesh and 24th in India.",
-                                    // Replace with your text
-                                    style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.normal,
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: widget.places.description!.map((description) {
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 5.0),
+                                          child: Text(
+                                            description,
+                                            style: TextStyle(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.normal,
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
                                     ),
                                   ),
+                                ),
                                 SizedBox(height: 10.0),
-                                Spacer(),
                                 Container(
-                                    alignment: Alignment.center,
-                                    child: CustomButtonWidget(
-                                      onPressed: () {
-                                        print('Explore ${places}');
-                                      },
-                                    )
+                                  alignment: Alignment.center,
+                                  child: CustomButtonWidget(
+                                    onPressed: () {
+                                      print('Explore ${widget.places.name}');
+                                    },
+                                  ),
                                 ),
                               ],
                             ),

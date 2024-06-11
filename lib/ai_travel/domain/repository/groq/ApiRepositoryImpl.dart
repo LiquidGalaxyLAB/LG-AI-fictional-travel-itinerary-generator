@@ -16,7 +16,9 @@ class GetPLaceRepositoryImpl implements GetPlaceDetailRepository {
     GroqModelNew? groqModelNew = await
     groqApiService.sendPostRequest(Const.testPrompts[1].replaceAll("\$city", city));
     var response = groqModelNew!.choices?[0].message?.content;
-    /*response = response?.substring(7, response.length - 3);*/ //this is done to remove the ```json from the beginning and ``` from the end
+    response = response?.substring(7, response.length - 3); //this is done to remove the ```json from the beginning and ``` from the end
+    response = response?.replaceAll(RegExp(r',\s*}'), '}'); // Remove trailing commas before closing braces
+    response = response?.replaceAll(RegExp(r',\s*\]'), ']'); // Remove trailing commas before closing brackets
     print('Response: $response');
     Map<String, dynamic> jsonMap = jsonDecode(response!);
     return Place.fromJson(jsonMap);
@@ -27,7 +29,6 @@ class GetPLaceRepositoryImpl implements GetPlaceDetailRepository {
     GroqResponseModel? groqModelNew = await groqApiService.sendPostPrompt(Const.testPrompts[1].replaceAll("\$city", city));
     var response = groqModelNew!.choices?[0].message?.content;
     response = response?.substring(7, response.length - 3); //this is done to remove the ```json from the beginning and ``` from the end
-    print('Response: $response');
     Map<String, dynamic> jsonMap = jsonDecode(response!);
     return Places.fromJson(jsonMap);
   }

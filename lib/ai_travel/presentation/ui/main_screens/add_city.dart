@@ -25,13 +25,13 @@ class AddCity extends ConsumerStatefulWidget {
 class _AddCityState extends ConsumerState<AddCity> {
   TextEditingController _textEditingController = TextEditingController();
   late Place place = Place(name: "", location: [], description: "", address: '',place: '');
-  late Places places = Places(name: [],description: [],address: []);
+  late Places places = Places(name: [],description: [],address: [],title: "");
   final isLoading = true;
+
   void _getResponse(String poi) async {
     print('Getting place details for $poi');
     /*Place place = await getResponse(poi);*/
     places = await getResponses(poi);
-    print('Name: ${places.name![0]}');
    /* _loadChatResponse(place);*/
     _loadChatResponses(places);
     print('Name: ${place.place}');
@@ -63,7 +63,8 @@ class _AddCityState extends ConsumerState<AddCity> {
     /*_navigate(place.address!);*/
     await SSH(ref:ref).stopOrbit(context);
   }
-  //do it for places
+
+
   Future<void> _loadChatResponses(Places response) async {
     for(int i=0;i<response.name!.length;i++){
       Future.delayed(Duration(seconds: 2 * (i + 1)), () async{
@@ -195,7 +196,6 @@ class _AddCityState extends ConsumerState<AddCity> {
                                           _navigate("${place.place}, ${place.address!}");
                                         }else{
                                           print('Navigating to ${place.name}, ${place.address!}');
-                                          _navigate("${place.name}, ${place.address!}");
                                           for(int i=0;i<places.name!.length;i++){
                                             if(i==0){
                                               Future.delayed(Duration(seconds: 2 * (i + 1)), () async{

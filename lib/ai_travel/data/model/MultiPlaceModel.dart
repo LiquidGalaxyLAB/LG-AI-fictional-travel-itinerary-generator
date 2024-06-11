@@ -109,11 +109,13 @@ class Message {
 }
 
 class Places {
+  final String? title;
   final List<String>? name;
   final List<String>? address;
   final List<String>? description;
 
   Places({
+    required this.title,
     required this.name,
     required this.address,
     required this.description,
@@ -121,26 +123,29 @@ class Places {
 
   factory Places.fromJson(Map<String, dynamic> json) {
     List<dynamic> placesJson = json['places'];
+    String? title = json['title'];
     List<String> names = placesJson.map<String>((placeJson) => placeJson['name']).toList();
     List<String> addresses = placesJson.map<String>((placeJson) => placeJson['address']).toList();
     List<String> descriptions = placesJson.map<String>((placeJson) => placeJson['description']).toList();
 
     return Places(
+      title: title,
       name: names,
       address: addresses,
       description: descriptions,
     );
   }
 
-
   Map<String, dynamic> toJson() {
     return {
+      'title': title,
       'name': name,
       'address': address,
       'description': description,
     };
   }
 }
+
 
 
 class Usage {

@@ -107,7 +107,7 @@ class DrawerWidget extends StatelessWidget {
               leading: const Icon(Icons.home,color: Colors.white,),
               title: const Text('Home',style: TextStyle(color: Colors.white)),
               onTap: () {
-
+                  Navigator.pop(context);
               },
             ),
             ListTile(
@@ -115,12 +115,14 @@ class DrawerWidget extends StatelessWidget {
               title: Text('subPoiPage',style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.pushNamed(context, '/generatedSubPoiPage');
+                Navigator.pop(context);
               },
             ),
             ListTile(
               leading: Icon(Iconsax.settings,color: Colors.white,),
               title: Text('Liquid Galaxy Management', style: TextStyle(color: Colors.white)),
               onTap: () {
+                Navigator.pop(context);
                 Navigator.pushNamed(context, '/galaxyManagement');
               },
             ),
@@ -128,7 +130,7 @@ class DrawerWidget extends StatelessWidget {
               leading: Icon(Icons.logout,color: Colors.white,),
               title: Text('Logout', style: TextStyle(color: Colors.white)),
               onTap: () {
-
+                Navigator.pop(context);
               },
             ),
           ],
