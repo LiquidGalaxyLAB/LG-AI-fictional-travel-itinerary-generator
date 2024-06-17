@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:groq/groq.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/config/route/routes.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/GroqModel.dart';
@@ -133,6 +134,14 @@ class DrawerWidget extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
+            ListTile(
+              leading: Icon(Iconsax.map,color: Colors.white,),
+              title: Text('Map', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, googleMapPage);
+              },
+            )
           ],
         ),
       ),

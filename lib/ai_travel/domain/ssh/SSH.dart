@@ -3,6 +3,7 @@ import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../core/kml/NamePlaceBallon.dart';
 import '../../presentation/providers/connection_providers.dart';
@@ -85,7 +86,7 @@ class SSH {
       await cleanBalloon(context);
     }
   }
-  Future ChatResponseBalloon(String data) async {
+  Future ChatResponseBalloon(String data,LatLng coordinates) async {
     int rigs = 4;
     _client = ref.read(sshClientProvider);
     rigs = ref.read(rightmostRigProvider);
@@ -109,14 +110,14 @@ class SSH {
    <description>
    </description>
    <LookAt>
-     <longitude>0</longitude>
-     <latitude>0</latitude>
+     <longitude>${coordinates.longitude}</longitude>
+     <latitude>${coordinates.latitude}</latitude>
     
    </LookAt>
    <styleUrl>#about_style</styleUrl>
    <gx:balloonVisibility>1</gx:balloonVisibility>
    <Point>
-     <coordinates>0,0,0</coordinates>
+     <coordinates>${coordinates.longitude},${coordinates.latitude},0</coordinates>
    </Point>
  </Placemark>
 </Document>

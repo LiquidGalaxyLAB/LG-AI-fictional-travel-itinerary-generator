@@ -9,4 +9,5 @@ class Strings{
   static const String exampleAddCity = "I want to explore North India";
   static const String liquidGalaxyManagement = "Liquid Galaxy Management";
   static const String areYouSure = "Are you sure?";
+  static const String explore = "Explore";
 }

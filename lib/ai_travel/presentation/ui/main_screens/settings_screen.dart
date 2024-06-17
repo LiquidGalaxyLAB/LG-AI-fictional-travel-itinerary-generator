@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dartssh2/dartssh2.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
@@ -126,7 +127,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     bool? result = await ssh.connectToLG(context);
     ref.read(connectedProvider.notifier).state = result!;
     if(ref.read(connectedProvider)){
-      ssh.ChatResponseBalloon("this is adadf");
+      ssh.ChatResponseBalloon("this is adadf",LatLng(0, 0));
       ssh.execute();
     }
   }

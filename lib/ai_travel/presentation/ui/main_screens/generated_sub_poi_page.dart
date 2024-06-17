@@ -1,23 +1,28 @@
+import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
 
 import '../../../config/string/String.dart';
 import '../../../config/theme/app_theme.dart';
+import '../../../domain/ssh/SSH.dart';
 import '../../widgets/app_bar.dart';
 import '../../widgets/destination_card.dart';
 
-class GeneratedSubPoiPage extends StatefulWidget {
+class GeneratedSubPoiPage extends ConsumerStatefulWidget {
   final Places places;
-  const GeneratedSubPoiPage({Key? key, required this.places}) : super(key: key);
+  const GeneratedSubPoiPage({super.key, required this.places});
 
 
   @override
-  State<GeneratedSubPoiPage> createState() => _GeneratedSubPoiPageState();
+  _GeneratedSubPoiPageState createState() => _GeneratedSubPoiPageState();
 }
 
-class _GeneratedSubPoiPageState extends State<GeneratedSubPoiPage> {
+class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
   @override
   void initState() {
     print('Places: ${widget.places.name}');
@@ -143,7 +148,7 @@ class _GeneratedSubPoiPageState extends State<GeneratedSubPoiPage> {
                                   alignment: Alignment.center,
                                   child: CustomButtonWidget(
                                     onPressed: () {
-                                      print('Explore ${widget.places.name}');
+                                      _loadChatResponses(widget.places);
                                     },
                                   ),
                                 ),
@@ -161,5 +166,53 @@ class _GeneratedSubPoiPageState extends State<GeneratedSubPoiPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _loadChatResponses(Places response) async {
+    for (int i = 0; i < response.name!.length; i++) {
+      await SSH(ref: ref).setRefresh(context);
+      if (i == 0) {
+        Future.delayed(Duration(seconds: 2 * (i + 1)), () async {
+          _visualizeInLG(i, response);
+          await SSH(ref: ref).setRefresh(context);
+          _navigate("${response.name![i]}, ${response.address![i]}");
+        });
+      } else {
+        Future.delayed(Duration(seconds: 8 * (i + 1)), () async {
+          _visualizeInLG(i, response);
+          await SSH(ref: ref).setRefresh(context);
+          _navigate("${response.name![i]}, ${response.address![i]}");
+        });
+      }
+    }
+  }
+
+  Future<void> _navigate(String location) async {
+    SSHSession? session = await SSH(ref: ref).search("$location");
+    if (session != null) {
+      print(session.stdout);
+    }
+  }
+
+  void _visualizeInLG(int i, Places response) {
+    Future.delayed(Duration(seconds: 8 * (i + 1)), () async {
+      List<Location> latlng = await locationFromAddress("${response.name![i]}, ${response.address![i]}");
+      print("number is ${latlng.length}");
+      await SSH(ref: ref).cleanSlaves(context);
+      await SSH(ref: ref).cleanBalloon(context);
+      await SSH(ref: ref).setRefresh(context);
+      if (response.description![i] != null) {
+        await SSH(ref: ref).ChatResponseBalloon(
+          response.description![i],
+          latlng[i].latitude != null && latlng[i].longitude != null
+              ? LatLng(latlng[i].latitude!, latlng[i].longitude!)
+              : LatLng(0, 0),
+        );
+      } else {
+        await SSH(ref: ref).ChatResponseBalloon('No description available',LatLng(0, 0));
+      }
+      await _navigate(response.address![i]);
+      await SSH(ref: ref).stopOrbit(context);
+    });
   }
 }

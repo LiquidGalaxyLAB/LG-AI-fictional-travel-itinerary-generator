@@ -67,51 +67,6 @@ class _AddCityState extends ConsumerState<AddCity> {
     }
   }
 
-  Future<void> _loadChatResponses(Places response) async {
-    for (int i = 0; i < response.name!.length; i++) {
-      await SSH(ref: ref).setRefresh(context);
-      if (i == 0) {
-        Future.delayed(Duration(seconds: 2 * (i + 1)), () async {
-          _visualizeInLG(i, response);
-          await SSH(ref: ref).setRefresh(context);
-          _navigate("${places.name![i]}, ${places.address![i]}");
-        });
-      } else {
-        Future.delayed(Duration(seconds: 8 * (i + 1)), () async {
-          _visualizeInLG(i, response);
-          await SSH(ref: ref).setRefresh(context);
-          _navigate("${places.name![i]}, ${places.address![i]}");
-        });
-      }
-    }
-  }
-
-  void _visualizeInLG(int i, Places response) {
-    Future.delayed(Duration(seconds: 8 * (i + 1)), () async {
-      List<Location> latlng = await locationFromAddress(
-          "${places.name![i]}, ${places.address![i]}");
-      await SSH(ref: ref).cleanSlaves(context);
-      await SSH(ref: ref).cleanBalloon(context);
-      await SSH(ref: ref).setRefresh(context);
-      if (response.description![i] != null) {
-        await SSH(ref: ref).ChatResponseBalloon(
-          response.description![i],
-        );
-      } else {
-        await SSH(ref: ref).ChatResponseBalloon('No description available');
-      }
-      await _navigate(response.address![i]);
-      await SSH(ref: ref).stopOrbit(context);
-    });
-  }
-
-  Future<void> _navigate(String location) async {
-    print('Navigating to $location');
-    SSHSession? session = await SSH(ref: ref).search("$location");
-    if (session != null) {
-      print(session.stdout);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -246,7 +201,7 @@ class DestinationInputSection extends StatelessWidget {
                         child: isLoading
                             ? Container()
                             : CustomButtonWidget(
-                          text: isContentLoaded ? "No data found" : "Explore",
+                          text: Strings.explore,
                           onPressed: () {
                             getResponse(textEditingController.text);
                           },
@@ -287,4 +242,3 @@ class DestinationInputSection extends StatelessWidget {
     );
   }
 }
-

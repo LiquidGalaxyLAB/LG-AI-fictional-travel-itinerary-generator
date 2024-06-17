@@ -4,24 +4,36 @@ import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/main_screens/ho
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/main_screens/splash_screen.dart';
 import 'package:lg_ai_travel_itinerary/main.dart';
 
+import '../../core/utils/constants.dart';
 import '../../presentation/ui/main_screens/add_city.dart';
 import '../../presentation/ui/main_screens/generated_sub_poi_page.dart';
+import '../../presentation/ui/main_screens/google_map/google_map_page.dart';
 import '../../presentation/ui/main_screens/settings_screen.dart';
 import '../../presentation/ui/side_nav_screens/galaxy_management.dart';
+
+const String splashScreen = '/';
+const String homePage = '/homePage';
+const String addCityPage = '/addCity';
+const String settingsPage = '/settings';
+const String galaxyManagementPage = '/galaxyManagement';
+const String generatedSubPoiPage = '/generatedSubPoiPage';
+const String googleMapPage = '/googleMap';
 
 class AppRoutes {
   static Route onGenerateRoutes(RouteSettings settings){
     switch(settings.name){
-      case '/':
+      case splashScreen:
         return _materialRoute(const SplashScreen());
-      case '/homePage':
+      case homePage:
         return _fadeRoute(HomePage());
-      case '/addCity':
+      case addCityPage:
         return _fadeRoute(const AddCity());
-      case '/settings':
+      case settingsPage:
         return _fadeRoute(const ConnectionScreen());
-      case '/galaxyManagement':
+      case galaxyManagementPage:
         return _materialRoute(const LiquidGalaxyManagement());
+      case googleMapPage:
+        return _materialRoute(GoogleMapScreen());
       /*case '/generatedSubPoiPage':
         return _materialRoute(const GeneratedSubPoiPage());*/
       default:
