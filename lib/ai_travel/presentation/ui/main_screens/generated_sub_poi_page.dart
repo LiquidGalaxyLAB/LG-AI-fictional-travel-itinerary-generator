@@ -6,13 +6,13 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/main_screens/google_map/google_map_page.dart';
 
 import '../../../config/string/String.dart';
 import '../../../config/theme/app_theme.dart';
 import '../../../domain/ssh/SSH.dart';
 import '../../widgets/app_bar.dart';
 import '../../widgets/destination_card.dart';
-
 class GeneratedSubPoiPage extends ConsumerStatefulWidget {
   final Places places;
   const GeneratedSubPoiPage({super.key, required this.places});
@@ -114,7 +114,7 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
                                     ),
                                     SizedBox(width: 5.0),
                                     Text(
-                                      "27.1767° N, 78.0081° E",
+                                      "Multiple Location",
                                       // Replace with your text
                                       style: TextStyle(
                                         fontSize: 18.0,
@@ -148,7 +148,9 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
                                   alignment: Alignment.center,
                                   child: CustomButtonWidget(
                                     onPressed: () {
-                                      _loadChatResponses(widget.places);
+                                      //Navigator.push(context, MaterialPageRoute(builder: (context) => MapSample()));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => GoogleMapScreen(place: widget.places)));
+                                      /*_loadChatResponses(widget.places);*/
                                     },
                                   ),
                                 ),
