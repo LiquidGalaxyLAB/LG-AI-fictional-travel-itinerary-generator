@@ -45,22 +45,8 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     ref.read(passwordProvider.notifier).state = passwordController.text;
     ref.read(portProvider.notifier).state = int.parse(portController.text);
     ref.read(rigsProvider.notifier).state = int.parse(rigsController.text);
+    setRigs(int.parse(rigsController.text), ref);
   }
-
-/*  Future<void> _connectToLG() async {
-    bool? result = await ssh.connectToLG(context);
-    ref.read(connectedProvider.notifier).state = result!;
-    if(ref.read(connectedProvider)){
-      ssh.execute();
-    }
-  }*/
-
-  /* Future<void> _execute() async {
-    SSHSession? session = await ssh.execute();
-    if (session != null) {
-      print(session.stdout);
-    }
-  }*/
 
   @override
   void initState() {
@@ -127,7 +113,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     bool? result = await ssh.connectToLG(context);
     ref.read(connectedProvider.notifier).state = result!;
     if(ref.read(connectedProvider)){
-      ssh.ChatResponseBalloon("this is adadf",LatLng(0, 0));
+      ssh.ChatResponseBalloon("Lleida",LatLng(0, 0), "Hey there, I am Lleida, your travel assistant. How can I help you today?");
       ssh.execute();
     }
   }
@@ -160,33 +146,15 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     );
   }
 
-/*  Future<void> _cleanKml() async {
-    SSHSession? session = await SSH(ref: ref).cleanKML(context);
-    if (session != null) {
-      print(session.stdout);
-    }else{
-      print('Session is null');
-    }
-  }*/
-
-  /*Future<void> _cleanBalloon() async {
-
-    SSHSession? session = await SSH(ref: ref).cleanBalloon(context);
-    if (session != null) {
-      print(session.stdout);
-    }else{
-      print('Session is null');
-    }
-  }*/
-
   Future<void> relaunchLg() async {
-    SSHSession? session = await SSH(ref: ref).relaunchLG();
+    SSHSession? session = await SSH(ref: ref).relaunchLG(context);
     if (session != null) {
       print(session.stdout);
     }else{
       print('Session is null');
     }
   }
+
   rebootLG(context) async {
     try {
       for (var i = 1; i <= ref.read(rigsProvider); i++) {
@@ -244,17 +212,6 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
   }
 
 
- /* Future<void> resetRefresh() async {
-    SSHSession? session = await SSH(ref: ref).resetRefresh(context);
-    if (session != null) {
-      print(session.stdout);
-    }else{
-      print('Session is null');
-    }
-  }*/
-
-
-
   @override
   void dispose() {
     ipController.dispose();
@@ -267,7 +224,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
   }
 }
 
-//Fix this Control button class
+
 class ControlButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -275,7 +232,7 @@ class ControlButton extends StatelessWidget {
   final bool isShutdown;
   final VoidCallback onPressed;
 
-  ControlButton({
+  const ControlButton({
     required this.icon,
     required this.label,
     this.isPrimary = false,
@@ -287,10 +244,8 @@ class ControlButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-
-    // Calculate button width and height based on screen dimensions
-    final buttonWidth = screenWidth * 0.2; // 20% of screen width
-    final buttonHeight = screenHeight * 0.1; // 10% of screen height
+    final buttonWidth = screenWidth * 0.2;
+    final buttonHeight = screenHeight * 0.1;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -304,8 +259,8 @@ class ControlButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             foregroundColor: isShutdown ? Colors.white : (isPrimary ? Colors.white : Colors.black),
             backgroundColor: isShutdown ? Colors.red : (isPrimary ? Colors.blue : Colors.white),
-            textStyle: TextStyle(fontSize: 16),
-            padding: EdgeInsets.all(10),
+            textStyle: const TextStyle(fontSize: 16),
+            padding: const EdgeInsets.all(10),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),

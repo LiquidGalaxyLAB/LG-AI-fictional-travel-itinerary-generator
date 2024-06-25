@@ -60,7 +60,14 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
           },
         ),
       ]
-          : null,
+          : [
+        IconButton(
+          icon: const Icon(Icons.settings, color: Colors.white),
+          onPressed: () {
+            Navigator.pushNamed(context, '/settings');
+          },
+        ),
+      ],
     );
   }
 }

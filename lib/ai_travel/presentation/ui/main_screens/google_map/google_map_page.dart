@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
@@ -9,16 +11,18 @@ import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
 import 'package:geocoding/geocoding.dart';
 
-class GoogleMapScreen extends StatefulWidget {
+import '../../../../domain/ssh/SSH.dart';
+
+class GoogleMapScreen extends ConsumerStatefulWidget {
   final Places place;
   const GoogleMapScreen({super.key, required this.place});
 
   @override
-  State<GoogleMapScreen> createState() => _GoogleMapScreenState();
+  _GoogleMapScreenState createState() => _GoogleMapScreenState();
 }
 
 
-class _GoogleMapScreenState extends State<GoogleMapScreen> {
+class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
   final Completer<GoogleMapController> _controller = Completer<GoogleMapController>();
   bool isPlaying = false;
   static const CameraPosition _kGooglePlex = CameraPosition(
@@ -76,6 +80,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
     });
 
     if (isPlaying) {
+
       _startTour();
     } else {
       _timer?.cancel();
@@ -83,7 +88,8 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
   }
 
   void _startTour() {
-    _timer = Timer.periodic(Duration(seconds: 4), (Timer timer) async {
+    _showChatResponse(widget.place);
+    _timer = Timer.periodic(Duration(seconds: 8), (Timer timer) async {
       final GoogleMapController controller = await _controller.future;
       if (_currentPlaceIndex >= widget.place.description!.length) {
         _currentPlaceIndex = 0;
@@ -92,6 +98,8 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
         });
         timer.cancel();
       } else {
+
+        /*_loadChatResponses(widget.place);*/
         LatLng target = await _getLatLngForPlace(widget.place.name![_currentPlaceIndex]);
         _goToTheNextDescription();
         controller.animateCamera(CameraUpdate.newCameraPosition(
@@ -157,10 +165,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
     double containerWidth = screenWidth * 0.3;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Google Map'),
-        backgroundColor: Colors.transparent,
-      ),
+      appBar: CustomAppBar(isHomePage: false,),
       body: Stack(
         children: <Widget>[
           GoogleMap(
@@ -272,6 +277,39 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
       ),
     );
   }
+
+  Future<void> _navigate(String location) async {
+    SSHSession? session = await SSH(ref: ref).search("$location");
+    if (session != null) {
+      print(session.stdout);
+    }
+  }
+
+
+  void _showChatResponse(Places places) async {
+    List<Location> latLng = [];
+    for (int i = 0; i < places.name!.length; i++) {
+      latLng = await locationFromAddress("${places.name![i]}, ${places.address![i]}");
+      if (latLng.isNotEmpty) {
+        print("Lat and Lng ${latLng[0].latitude} ${latLng[0].longitude}");
+        await SSH(ref: ref).setRefresh(context);
+        await SSH(ref: ref).cleanSlaves(context);
+        await SSH(ref: ref).cleanBalloon(context);
+        await SSH(ref: ref).ChatResponseBalloon(places.description![i], LatLng(latLng[0].latitude, latLng[0].longitude),places.name![i]);
+        print("Showing chat response for ${places.name![i]} at ${places.address![i]}");
+        _navigate("${latLng[0].latitude}, ${latLng[0].longitude}");
+      } else {
+        print("No coordinates found for ${places.name![i]}");
+      }
+      await Future.delayed(const Duration(seconds: 8));
+    }
+    latLng.clear();
+    await SSH(ref: ref).cleanBalloon(context);
+    await SSH(ref: ref).cleanSlaves(context);
+    await SSH(ref: ref).setRefresh(context);
+  }
+
+
 }
 
 

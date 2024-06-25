@@ -20,7 +20,7 @@ class SnackBarWidget {
             ),
           ),
         ),
-        backgroundColor: const Color(0xff222222),
+        backgroundColor: color,
         duration: Duration(seconds: duration),
         showCloseIcon: true,
       ),

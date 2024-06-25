@@ -4,7 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 
+import '../../core/kml/KmlMaker.dart';
 import '../../core/kml/NamePlaceBallon.dart';
 import '../../presentation/providers/connection_providers.dart';
 import '../../presentation/widgets/snack_bar.dart';
@@ -14,7 +16,6 @@ class SSH {
   SSH({required this.ref});
   SSHClient? _client;
   final SnackBarWidget customWidgets = SnackBarWidget();
-
 
   /// For connection with the rigs using SSH
   Future<bool?> connectToLG(BuildContext context) async {
@@ -29,17 +30,14 @@ class SSH {
         username: ref.read(usernameProvider),
         onPasswordRequest: () => ref.read(passwordProvider),
       );
-      ref
-          .read(connectedProvider.notifier)
-          .state = true;
+      ref.read(connectedProvider.notifier).state = true;
       return true;
     } catch (e) {
       ref
           .read(connectedProvider.notifier)
           .state = false;
       print('Failed to connect: $e');
-      customWidgets.showSnackBar(
-          context: context, message: e.toString(), color: Colors.red);
+      customWidgets.showSnackBar(context: context, message: e.toString(), color: Colors.red);
       return false;
     }
   }
@@ -69,6 +67,7 @@ class SSH {
       return BalloonMakers.blankBalloon();
     }
   }
+
   cleanBalloon(context) async {
     try {
       String blank = '''
@@ -82,55 +81,85 @@ class SSH {
               .blankBalloon()}' > /var/www/html/kml/slave_${ref.read(
               leftmostRigProvider)}.kml");
     } catch (error) {
-      // await connectionRetry(context);
+      await connectionRetry(context);
       await cleanBalloon(context);
     }
   }
-  Future ChatResponseBalloon(String data,LatLng coordinates) async {
-    int rigs = 4;
-    _client = ref.read(sshClientProvider);
-    rigs = ref.read(rightmostRigProvider);
-    String openLogoKML =
-    '''<?xml version="1.0" encoding="UTF-8"?>
+  Future<void> ChatResponseBalloon(String data, LatLng coordinates, String placeName) async {
+    final _client = ref.read(sshClientProvider);
+    String openLogoKML = '''
+<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
-<Document>
- <name>About Data</name>
- <Style id="about_style">
-   <BalloonStyle>
-     <textColor>ffffffff</textColor>
-     <text>
-        <h2>$data</h2>
-       
-        
-     </text>
-     <bgColor>ff15151a</bgColor>
-   </BalloonStyle>
- </Style>
- <Placemark id="ab">
-   <description>
-   </description>
-   <LookAt>
-     <longitude>${coordinates.longitude}</longitude>
-     <latitude>${coordinates.latitude}</latitude>
-    
-   </LookAt>
-   <styleUrl>#about_style</styleUrl>
-   <gx:balloonVisibility>1</gx:balloonVisibility>
-   <Point>
-     <coordinates>${coordinates.longitude},${coordinates.latitude},0</coordinates>
-   </Point>
- </Placemark>
-</Document>
+  <Document>
+    <name>About Data</name>
+    <Style id="about_style">
+      <BalloonStyle>
+        <textColor>ffffffff</textColor>
+        <text>
+          <![CDATA[
+            <table border="0">
+              <tr>
+                <td><b>$placeName</b></td>
+              </tr>
+              <tr>
+                <td>$data</td>
+              </tr>
+            </table>
+            <br/>
+            <b>Directions:</b> 
+            <a href="https://maps.google.com/maps?daddr=${coordinates.latitude},${coordinates.longitude}">To here</a> - 
+            <a href="https://maps.google.com/maps?saddr=${coordinates.latitude},${coordinates.longitude}">From here</a>
+          ]]>
+        </text>
+        <bgColor>ff15151a</bgColor>
+      </BalloonStyle>
+    </Style>
+    <Placemark id="ab">
+      <LookAt>
+        <longitude>${coordinates.longitude}</longitude>
+        <latitude>${coordinates.latitude}</latitude>
+      </LookAt>
+      <styleUrl>#about_style</styleUrl>
+      <gx:balloonVisibility>1</gx:balloonVisibility>
+      <Point>
+        <coordinates>${coordinates.longitude},${coordinates.latitude},0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
 </kml>''';
+
+    // Execute the command with proper error handling
     try {
-      await _client?.execute("echo '$openLogoKML' > /var/www/html/kml/slave_2.kml");
+      await _client?.execute("echo '$openLogoKML' > /var/www/html/kml/slave_${ref.read(rightmostRigProvider)}.kml");
     } catch (e) {
-      return Future.error(e);
+      // Return a specific error message or log the error
+      return Future.error('Failed to execute SSH command: $e');
     }
   }
 
+
+  ///Connection Retry
+  connectionRetry(context, {int i = 0}) async {
+    ref.read(sshClientProvider)?.close();
+    SSHSocket socket;
+    try {
+      socket = await SSHSocket.connect(
+          ref.read(ipProvider), ref.read(portProvider),
+          timeout: const Duration(seconds: 5));
+    } catch (error) {
+      ref.read(connectedProvider.notifier).state = false;
+      return false;
+    }
+    ref.read(sshClientProvider.notifier).state = SSHClient(
+      socket,
+      username: ref.read(usernameProvider)!,
+      onPasswordRequest: () => ref.read(passwordProvider)!,
+    );
+    return true;
+  }
+
   /// For restarting the rigs using SSH
-   relaunchLG() async {
+   relaunchLG(context) async {
     try {
       _client = ref.read(sshClientProvider);
       for (var i = 1; i <= ref.read(rigsProvider); i++) {
@@ -154,15 +183,8 @@ class SSH {
                 .read(usernameProvider)}/log.txt');
         await ref.read(sshClientProvider)?.execute(cmd);
       }
-
-      /*if (_client == null) {
-        print('SSH client is not initialized.');
-        return null;
-      }
-      final session = await _client!.execute('lg-relaunch');
-      return session;*/
-    } catch (e) {
-      print('An error occurred while executing the command: $e');
+    } catch (error) {
+      customWidgets.showSnackBar(context: context, message: error.toString(), color: Colors.red);
       return null;
     }
   }
@@ -219,30 +241,27 @@ class SSH {
   /// For disconnecting from the lg rigs
   disconnect(context, {bool snackBar = true}) async {
     ref.read(sshClientProvider)?.close();
-    ref
-        .read(sshClientProvider.notifier)
-        .state = null;
+    ref.read(sshClientProvider.notifier).state = null;
     if (snackBar) {
-      /* showSnackBar(
-          context: context,
-          message: translate('settings.disconnection_completed'));*/
+      customWidgets.showSnackBar(context: context, message: Strings.disconnectCompleted, color: Colors.green);
     }
     ref.read(connectedProvider.notifier).state = false;
   }
 
+  /// For cleaning the KML files
   cleanKML(context) async {
     try {
       await stopOrbit(context);
       await ref.read(sshClientProvider)?.run('echo "" > /tmp/query.txt');
-      await ref.read(sshClientProvider)?.run("echo '' > /var/www/html/kml/slave_2.txt");
+      await ref.read(sshClientProvider)?.run("echo '' > /var/www/html/kml/slave_${ref.read(rightmostRigProvider)}.txt");
     } catch (error) {
-
+      await connectionRetry(context);
       await cleanKML(context);
-      // showSnackBar(
-      //     context: context, message: error.toString(), color: Colors.red);
+      customWidgets.showSnackBar(context: context, message: error.toString(), color: Colors.red);
     }
   }
 
+  /// For cleaning the slaves
   cleanSlaves(context) async {
     String blank = '''
 <?xml version="1.0" encoding="UTF-8"?>
@@ -261,15 +280,16 @@ class SSH {
     }
   }
 
+  /// For stopping the orbit
   stopOrbit(context) async {
     try {
       await ref.read(sshClientProvider)?.run('echo "exittour=true" > /tmp/query.txt');
     } catch (error) {
-
       stopOrbit(context);
     }
   }
 
+  /// For restarting the LG rigs
   rebootLG(context) async {
     try {
       for (var i = 1; i <= ref.read(rigsProvider); i++) {
@@ -280,6 +300,7 @@ class SSH {
       SnackBarWidget().showSnackBar(context: context, message: error.toString(), color: Colors.red);
     }
   }
+
   /// For refreshing the visualization
   setRefresh(context) async {
     _client = ref.read(sshClientProvider);
@@ -303,4 +324,64 @@ class SSH {
     }
   }
 
+  /// For flying to a location
+  flyTo(context, double latitude, double longitude, double zoom, double tilt,
+      double bearing) async {
+    try {
+      Future.delayed(Duration.zero).then((x) async {
+        ref.read(lastGMapPositionProvider.notifier).state = CameraPosition(
+          target: LatLng(latitude, longitude),
+          zoom: zoom,
+          tilt: tilt,
+          bearing: bearing,
+        );
+      });
+      await ref.read(sshClientProvider)?.run(
+          'echo "flytoview=${KMLMakers.lookAtLinear(latitude, longitude, zoom, tilt, bearing)}" > /tmp/query.txt');
+    } catch (error) {
+      try {
+        await connectionRetry(context);
+        await flyTo(context, latitude, longitude, zoom, tilt, bearing);
+      } catch (e) {}
+    }
+  }
+
+  /// For Flying to a instant
+  flyToInstant(context, double latitude, double longitude, double zoom,
+      double tilt, double bearing) async {
+    try {
+      ref.read(lastGMapPositionProvider.notifier).state = CameraPosition(
+        target: LatLng(latitude, longitude),
+        zoom: zoom,
+        tilt: tilt,
+        bearing: bearing,
+      );
+      await ref.read(sshClientProvider)?.run(
+          'echo "flytoview=${KMLMakers.lookAtLinearInstant(latitude, longitude, zoom, tilt, bearing)}" > /tmp/query.txt');
+    } catch (error) {
+      customWidgets.showSnackBar(context: context, message: error.toString(), color: Colors.red);
+    }
+  }
+
+  /// For flying to an orbit
+  flyToOrbit(context, double latitude, double longitude, double zoom,
+      double tilt, double bearing) async {
+    try {
+      await ref.read(sshClientProvider)?.run(
+          'echo "flytoview=${KMLMakers.orbitLookAtLinear(latitude, longitude, zoom, tilt, bearing)}" > /tmp/query.txt');
+    } catch (error) {
+      await connectionRetry(context);
+      await flyToOrbit(context, latitude, longitude, zoom, tilt, bearing);
+    }
+  }
+
+  /// For starting any orbit
+  startOrbit(context) async {
+    try {
+      await ref.read(sshClientProvider)?.run('echo "playtour=Orbit" > /tmp/query.txt');
+    } catch (error) {
+      await SSH(ref: ref).connectionRetry(context);
+      await startOrbit(context);
+    }
+  }
 }

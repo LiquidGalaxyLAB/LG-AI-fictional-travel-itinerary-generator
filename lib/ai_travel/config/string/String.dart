@@ -10,4 +10,5 @@ class Strings{
   static const String liquidGalaxyManagement = "Liquid Galaxy Management";
   static const String areYouSure = "Are you sure?";
   static const String explore = "Explore";
+  static const String disconnectCompleted = "Disconnect completed";
 }

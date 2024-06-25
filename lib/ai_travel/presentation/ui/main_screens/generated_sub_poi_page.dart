@@ -170,24 +170,6 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
     );
   }
 
-  Future<void> _loadChatResponses(Places response) async {
-    for (int i = 0; i < response.name!.length; i++) {
-      await SSH(ref: ref).setRefresh(context);
-      if (i == 0) {
-        Future.delayed(Duration(seconds: 2 * (i + 1)), () async {
-          _visualizeInLG(i, response);
-          await SSH(ref: ref).setRefresh(context);
-          _navigate("${response.name![i]}, ${response.address![i]}");
-        });
-      } else {
-        Future.delayed(Duration(seconds: 8 * (i + 1)), () async {
-          _visualizeInLG(i, response);
-          await SSH(ref: ref).setRefresh(context);
-          _navigate("${response.name![i]}, ${response.address![i]}");
-        });
-      }
-    }
-  }
 
   Future<void> _navigate(String location) async {
     SSHSession? session = await SSH(ref: ref).search("$location");
@@ -196,25 +178,4 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
     }
   }
 
-  void _visualizeInLG(int i, Places response) {
-    Future.delayed(Duration(seconds: 8 * (i + 1)), () async {
-      List<Location> latlng = await locationFromAddress("${response.name![i]}, ${response.address![i]}");
-      print("number is ${latlng.length}");
-      await SSH(ref: ref).cleanSlaves(context);
-      await SSH(ref: ref).cleanBalloon(context);
-      await SSH(ref: ref).setRefresh(context);
-      if (response.description![i] != null) {
-        await SSH(ref: ref).ChatResponseBalloon(
-          response.description![i],
-          latlng[i].latitude != null && latlng[i].longitude != null
-              ? LatLng(latlng[i].latitude!, latlng[i].longitude!)
-              : LatLng(0, 0),
-        );
-      } else {
-        await SSH(ref: ref).ChatResponseBalloon('No description available',LatLng(0, 0));
-      }
-      await _navigate(response.address![i]);
-      await SSH(ref: ref).stopOrbit(context);
-    });
-  }
 }

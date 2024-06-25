@@ -11,7 +11,6 @@ StateProvider<SSHClient?> sshClientProvider = StateProvider(
 StateProvider<String> ipProvider = StateProvider((ref) => '192.168.201.3');
 StateProvider<String> usernameProvider = StateProvider((ref) => 'lg');
 StateProvider<String> passwordProvider = StateProvider((ref) => 'lg');
-StateProvider<String> chatUserNameProvider = StateProvider((ref) => 'User');
 StateProvider<int> portProvider = StateProvider((ref) => 22);
 StateProvider<int> rigsProvider = StateProvider((ref) => 3);
 StateProvider<bool> connectedProvider = StateProvider((ref) => false);
@@ -25,6 +24,7 @@ StateProvider<bool> isNewChat = StateProvider((ref) => false);
 StateProvider<String> lastBalloonProvider = StateProvider((ref) => BalloonMakers.blankBalloon());
 StateProvider<CameraPosition?> lastGMapPositionProvider =
 StateProvider((ref) => null);
+StateProvider<bool> isConnectedToLGProvider = StateProvider((ref) => false);
 
 setRigs(int rig, WidgetRef ref) {
   ref.read(rigsProvider.notifier).state = rig;

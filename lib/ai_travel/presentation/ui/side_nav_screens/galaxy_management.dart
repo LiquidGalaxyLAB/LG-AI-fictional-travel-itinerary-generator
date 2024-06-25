@@ -171,7 +171,7 @@ class _LiquidGalaxyManagementState
   }
 
   Future<void> relaunchLg() async {
-    await SSH(ref: ref).relaunchLG();
+    await SSH(ref: ref).relaunchLG(context);
   }
 
   rebootLG(context) async {
