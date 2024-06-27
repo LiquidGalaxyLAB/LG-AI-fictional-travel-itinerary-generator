@@ -10,7 +10,7 @@ class GetPlaceDetailUseCase {
     return await repository.getPlaceDetails(city);
   }
 
-  Future<Places> getPlaces(String city) async {
-    return await repository.getPlacesDetails(city);
+  Future<Places> getPlaces(String city,String model) async {
+    return await repository.getPlacesDetails(city,model);
   }
 }

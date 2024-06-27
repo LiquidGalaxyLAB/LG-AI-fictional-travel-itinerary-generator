@@ -1,21 +1,19 @@
 import 'dart:async';
-
-import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/presentation/providers/connection_providers.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/use_case/api_use_case.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/use_case/get_model_use_case.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/destination_card.dart';
-
+import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/drop_down_class.dart';
 import '../../../data/model/GroqModel.dart';
-import '../../../domain/ssh/SSH.dart';
 import '../../../injection_container.dart';
 import '../../widgets/cutom_circular_indicator.dart';
 import 'generated_sub_poi_page.dart';
@@ -28,13 +26,38 @@ class AddCity extends ConsumerStatefulWidget {
 }
 
 class _AddCityState extends ConsumerState<AddCity> {
+  final List<String> groqAiModelList = [];
   var isContentLoaded = false;
+  var isLoadingModels = true;
   final TextEditingController _textEditingController = TextEditingController();
-  late Place place =
-  Place(name: "", location: [], description: "", address: '', place: '');
-  late Places places =
-  Places(name: [], description: [], address: [], title: "");
+  late Place place = Place(name: "", location: [], description: "", address: '', place: '');
+  late Places places = Places(name: [], description: [], address: [], title: "");
   var isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _getModels();
+  }
+
+  void _getModels() async {
+    try {
+      final useCase = sl.get<GetModelUseCase>();
+      var models = await useCase.getAvailableModels();
+      models?.data?.forEach((element) {
+        groqAiModelList.add(element.id!);
+      });
+      setState(() {
+        ref.read(groqAiModelsListProvider.notifier).state = groqAiModelList;
+        isLoadingModels = false;
+      });
+    } catch (e) {
+      print(e);
+      setState(() {
+        isLoadingModels = false;
+      });
+    }
+  }
 
   void _getResponse(String poi) async {
     setState(() {
@@ -47,26 +70,29 @@ class _AddCityState extends ConsumerState<AddCity> {
       isLoading = false;
       if (places.name!.isNotEmpty) {
         isContentLoaded = true;
-      }else{
+      } else {
         isContentLoaded = false;
       }
     });
+    print("this is the state of $isContentLoaded ${places.title?.length}");
     if (isContentLoaded) {
       Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => GeneratedSubPoiPage(places: places)));
+        context,
+        MaterialPageRoute(builder: (context) => GeneratedSubPoiPage(places: places)),
+      );
     }
   }
 
   Future<Places> getResponses(String poi) async {
-    try{
+    var model = ref.watch(currentAiModelSelected);
+    try {
       final useCase = sl.get<GetPlaceDetailUseCase>(); // Inject with GetIt
-      return await useCase.getPlaces(poi);
-    }catch(e){
+      return await useCase.getPlaces(poi,model);
+    } catch (e) {
+      print(e);
       return Places(name: [], description: [], address: [], title: "");
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +111,21 @@ class _AddCityState extends ConsumerState<AddCity> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      isLoadingModels
+                          ? const SizedBox(
+                        width: 24.0,
+                        height: 24.0,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      )
+                          : CustomDropdown(elementList: groqAiModelList),
+                    ],
+                  ),
+                  SizedBox(height: 20),
                   DestinationInputSection(
                     height: height,
                     textEditingController: _textEditingController,
@@ -105,6 +146,7 @@ class _AddCityState extends ConsumerState<AddCity> {
     Navigator.pushNamed(context, '/generatedSubPoiPage', arguments: places);
   }
 }
+
 
 class DestinationInputSection extends StatelessWidget {
   final double height;

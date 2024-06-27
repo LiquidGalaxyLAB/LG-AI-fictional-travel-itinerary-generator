@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:lg_ai_travel_itinerary/ai_travel/core/utils/constants.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/data/model/AiModels.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/domain/repository/groq/ApiRepository.dart';
 import '../../../data/model/GroqModel.dart';
@@ -25,11 +26,16 @@ class GetPLaceRepositoryImpl implements GetPlaceDetailRepository {
   }
 
   @override
-  Future<Places> getPlacesDetails(String city) async{
-    GroqResponseModel? groqModelNew = await groqApiService.sendPostPrompt(Const.testPrompts[1].replaceAll("\$city", city));
+  Future<Places> getPlacesDetails(String city,String model) async{
+    GroqResponseModel? groqModelNew = await groqApiService.sendPostPrompt(Const.testPrompts[1].replaceAll("\$city", city),model);
     var response = groqModelNew!.choices?[0].message?.content;
     response = response?.substring(7, response.length - 3); //this is done to remove the ```json from the beginning and ``` from the end
     Map<String, dynamic> jsonMap = jsonDecode(response!);
     return Places.fromJson(jsonMap);
+  }
+
+  @override
+  Future<GroqAiModelList?> getAvailableModels() async{
+    return await groqApiService.getAvailableModels();
   }
 }

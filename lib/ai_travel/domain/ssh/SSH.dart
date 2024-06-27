@@ -23,9 +23,7 @@ class SSH {
       final socket = await SSHSocket.connect(
           ref.read(ipProvider), ref.read(portProvider),
           timeout: const Duration(seconds: 5));
-      ref
-          .read(sshClientProvider.notifier)
-          .state = SSHClient(
+      ref.read(sshClientProvider.notifier).state = SSHClient(
         socket,
         username: ref.read(usernameProvider),
         onPasswordRequest: () => ref.read(passwordProvider),
