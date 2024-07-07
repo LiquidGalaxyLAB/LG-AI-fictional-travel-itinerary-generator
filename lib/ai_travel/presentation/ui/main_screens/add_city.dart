@@ -19,17 +19,20 @@ import '../../widgets/cutom_circular_indicator.dart';
 import 'generated_sub_poi_page.dart';
 
 class AddCity extends ConsumerStatefulWidget {
-  const AddCity({super.key});
+  final String initialText;
+
+  const AddCity({Key? key, this.initialText = ''}) : super(key: key);
 
   @override
   _AddCityState createState() => _AddCityState();
 }
 
+
 class _AddCityState extends ConsumerState<AddCity> {
   final List<String> groqAiModelList = [];
   var isContentLoaded = false;
   var isLoadingModels = true;
-  final TextEditingController _textEditingController = TextEditingController();
+  late  TextEditingController _textEditingController = TextEditingController();
   late Place place = Place(name: "", location: [], description: "", address: '', place: '');
   late Places places = Places(name: [], description: [], address: [], title: "");
   var isLoading = false;
@@ -37,6 +40,7 @@ class _AddCityState extends ConsumerState<AddCity> {
   @override
   void initState() {
     super.initState();
+    _textEditingController = TextEditingController(text: widget.initialText);
     _getModels();
   }
 

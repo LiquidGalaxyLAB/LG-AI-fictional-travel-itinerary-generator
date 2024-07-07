@@ -95,7 +95,7 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
                                     ),
                                     SizedBox(width: 5.0),
                                     Text(
-                                      "India",
+                                      "Unknown",
                                       // Replace with your text
                                       style: TextStyle(
                                         fontSize: 18.0,

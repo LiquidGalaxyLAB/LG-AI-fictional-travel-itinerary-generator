@@ -71,7 +71,12 @@ flutter:
   assets:
     - assets/images/
     - assets/anim/
+    - assets/images/travel/
     - keys.env
+    - assets/images/lg_logos/
+    - assets/images/lg_logos/line_2/
+    - assets/images/lg_logos/line_3/
+    - assets/images/lg_logos/line_4/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

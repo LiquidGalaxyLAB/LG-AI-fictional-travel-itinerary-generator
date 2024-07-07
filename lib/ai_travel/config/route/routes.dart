@@ -5,6 +5,7 @@ import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/main_screens/sp
 import 'package:lg_ai_travel_itinerary/main.dart';
 
 import '../../core/utils/constants.dart';
+import '../../presentation/ui/main_screens/about_page.dart';
 import '../../presentation/ui/main_screens/add_city.dart';
 import '../../presentation/ui/main_screens/generated_sub_poi_page.dart';
 import '../../presentation/ui/main_screens/google_map/google_map_page.dart';
@@ -18,6 +19,7 @@ const String settingsPage = '/settings';
 const String galaxyManagementPage = '/galaxyManagement';
 const String generatedSubPoiPage = '/generatedSubPoiPage';
 const String googleMapPage = '/googleMap';
+const String aboutPage = '/about';
 
 class AppRoutes {
   static Route onGenerateRoutes(RouteSettings settings){
@@ -32,6 +34,8 @@ class AppRoutes {
         return _fadeRoute(const ConnectionScreen());
       case galaxyManagementPage:
         return _materialRoute(const LiquidGalaxyManagement());
+      case aboutPage:
+        return _materialRoute(AboutPage());
       /*case '/generatedSubPoiPage':
         return _materialRoute(const GeneratedSubPoiPage());*/
       default:

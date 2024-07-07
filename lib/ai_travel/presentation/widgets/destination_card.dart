@@ -3,24 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
 
-class DestinationCard extends StatelessWidget {
-  final Image image;
-  final String title;
-  final String location;
-  final String coordinates;
-  final String description;
+import '../../data/model/destination.dart';
 
+class DestinationCard extends StatelessWidget {
+  final Destination destination;
+  final int index;
+  final VoidCallback onPressed;
   const DestinationCard({
-    required this.image,
-    required this.title,
-    required this.location,
-    required this.coordinates,
-    required this.description,
-    Key? key,
-  }) : super(key: key);
+    required this.destination,
+    required this.index,
+    required this.onPressed,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -30,54 +28,65 @@ class DestinationCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: image,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+          SizedBox(
+            height: height * 0.4,
+            width: double.infinity,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(destination.image, fit: BoxFit.cover),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            location,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              const Icon(Icons.location_on, color: Colors.white70),
-              const SizedBox(width: 4),
-              Text(
-                coordinates,
-                style: const TextStyle(
-                  color: Colors.white70,
-                ),
-              ),
-            ],
           ),
           const SizedBox(height: 8),
           Expanded(
-            child: Text(
-              description,
-              style: const TextStyle(
-                color: Colors.white70,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    destination.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    destination.location,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on, color: Colors.white70),
+                      const SizedBox(width: 4),
+                      Text(
+                        destination.coordinates,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    destination.description,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(height: 8),
           CustomButtonWidget(
             onPressed: () {
+              onPressed();
             },
           ),
         ],
@@ -85,6 +94,7 @@ class DestinationCard extends StatelessWidget {
     );
   }
 }
+
 
 class CustomButtonWidget extends StatelessWidget {
   final VoidCallback onPressed;
