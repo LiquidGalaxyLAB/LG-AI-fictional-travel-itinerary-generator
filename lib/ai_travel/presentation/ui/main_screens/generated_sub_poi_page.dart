@@ -6,7 +6,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
-import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/main_screens/google_map/google_map_page.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/main_screens/google_map/google_map_subPoi.dart';
 
 import '../../../config/string/String.dart';
 import '../../../config/theme/app_theme.dart';

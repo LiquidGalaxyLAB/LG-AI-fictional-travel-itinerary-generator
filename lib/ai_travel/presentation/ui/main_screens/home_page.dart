@@ -181,19 +181,19 @@ class DrawerWidget extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.person,color: Colors.white,),
-              title: Text('subPoiPage',style: TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pushNamed(context, '/generatedSubPoiPage');
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
               leading: Icon(Iconsax.settings,color: Colors.white,),
               title: Text('Liquid Galaxy Management', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, '/galaxyManagement');
+              },
+            ),
+            ListTile(
+              leading: Icon(Iconsax.map,color: Colors.white,),
+              title: Text('Map',style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/googleMap');
               },
             ),
             ListTile(

@@ -1,0 +1,10 @@
+class ImageConst{
+  static const appLogo = "assets/images/lg_logos/lg-ai-fictional-groq.png";
+  static const gsoc = "assets/images/lg_logos/line_2/Gsoc.png";
+  static const lg = "assets/images/lg_logos/line_2/Lg.png";
+  static const flutter = "assets/images/lg_logos/line_3/flutter_lleida.png";
+  static const lgEU = "assets/images/lg_logos/line_3/LogoLGEU.png";
+  static const lgLab = "assets/images/lg_logos/line_3/lg_lab.png";
+  static const gdg = "assets/images/lg_logos/line_3/flutter_lleida.png";
+  static const parcLleida = "assets/images/lg_logos/line_3/Parc_.png";
+}

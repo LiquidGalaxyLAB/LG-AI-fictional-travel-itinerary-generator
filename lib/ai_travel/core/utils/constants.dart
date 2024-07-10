@@ -7,6 +7,13 @@ class Const {
   static double longitude = 87.296992;
   static double latitude = 23.547625;
   static double heading = 0.0;
+  static Duration animationDuration = const Duration(milliseconds: 375);
+  static double animationDurationDouble = 375;
+  static Duration screenshotDelay = const Duration(milliseconds: 1000);
+  static double animationDistance = 50;
+  static double dashboardUIRoundness = 20;
+  static double dashboardUISpacing = 10;
+  static double dashboardUIHeightFactor = 0.65;
   static double tilt = 0.0;
   static double range = 11;
   static double splashAspectRatio = 2864 / 3000;
