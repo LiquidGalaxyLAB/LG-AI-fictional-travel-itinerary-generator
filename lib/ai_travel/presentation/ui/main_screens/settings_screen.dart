@@ -113,7 +113,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     bool? result = await ssh.connectToLG(context);
     ref.read(connectedProvider.notifier).state = result!;
     if(ref.read(connectedProvider)){
-      ssh.ChatResponseBalloon("Lleida",LatLng(0, 0), "Hey there, I am Lleida, your travel assistant. How can I help you today?");
+      ssh.ChatResponseBalloon("Lleida",LatLng(41.6177, 0.6200), "Hey there, I am Lleida, your travel assistant. How can I help you today?");
       ssh.execute();
     }
   }

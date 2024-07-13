@@ -38,50 +38,48 @@ class DestinationCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    destination.title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  destination.title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    destination.location,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                    ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  destination.location,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 16,
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on, color: Colors.white70),
-                      const SizedBox(width: 4),
-                      Text(
-                        destination.coordinates,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                        ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.location_on, color: Colors.white70),
+                    const SizedBox(width: 4),
+                    Text(
+                      destination.coordinates,
+                      style: const TextStyle(
+                        color: Colors.white70,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    destination.description,
-                    style: const TextStyle(
-                      color: Colors.white70,
                     ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  destination.description,
+                  style: const TextStyle(
+                    color: Colors.white70,
                   ),
-                ],
-              ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
           CustomButtonWidget(

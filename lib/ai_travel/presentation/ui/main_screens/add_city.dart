@@ -51,6 +51,10 @@ class _AddCityState extends ConsumerState<AddCity> {
       models?.data?.forEach((element) {
         groqAiModelList.add(element.id!);
       });
+      if(groqAiModelList.contains('gemma-7b-it')){
+        groqAiModelList.remove('gemma-7b-it');
+        groqAiModelList.insert(0, 'gemma-7b-it');
+      }
       setState(() {
         ref.read(groqAiModelsListProvider.notifier).state = groqAiModelList;
         isLoadingModels = false;
