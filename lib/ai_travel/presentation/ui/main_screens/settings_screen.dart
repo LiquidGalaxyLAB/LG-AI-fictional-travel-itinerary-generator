@@ -115,6 +115,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     if(ref.read(connectedProvider)){
       ssh.ChatResponseBalloon("Lleida",LatLng(41.6177, 0.6200), "Hey there, I am Lleida, your travel assistant. How can I help you today?");
       ssh.execute();
+      SSH(ref: ref).showSplashLogo();
     }
   }
 

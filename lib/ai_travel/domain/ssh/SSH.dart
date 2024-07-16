@@ -8,6 +8,8 @@ import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 
 import '../../core/kml/KmlMaker.dart';
 import '../../core/kml/NamePlaceBallon.dart';
+import '../../core/utils/Images.dart';
+import '../../core/utils/constants.dart';
 import '../../presentation/providers/connection_providers.dart';
 import '../../presentation/widgets/snack_bar.dart';
 
@@ -83,6 +85,13 @@ class SSH {
       await cleanBalloon(context);
     }
   }
+
+  showSplashLogo() async{
+    await ref.read(sshClientProvider)?.execute(
+        "echo '${KMLMakers.screenOverlayImage(ImageConst.splashOnline, Const.splashAspectRatio)}' > /var/www/html/kml/slave_${ref.read(leftmostRigProvider)}.kml");
+  }
+
+
   Future<void> ChatResponseBalloon(String data, LatLng coordinates, String placeName) async {
     final _client = ref.read(sshClientProvider);
     String openLogoKML = '''
