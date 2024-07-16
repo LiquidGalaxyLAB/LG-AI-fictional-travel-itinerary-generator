@@ -76,14 +76,16 @@ class _LiquidGalaxyManagementState
                             ControlButton(
                               icon: Icons.image,
                               label: 'Show Logo',
-                              onPressed: () {},
+                              onPressed: () {
+                                SSH(ref: ref).showSplashLogo();
+                              },
                             ),
                             Spacer(),
                             ControlButton(
                               icon: Icons.cleaning_services,
                               label: 'Clean KML',
                               onPressed: () {
-                                setRefresh();
+                                cleanSlaves();
                               },
                             ),
                           ],
