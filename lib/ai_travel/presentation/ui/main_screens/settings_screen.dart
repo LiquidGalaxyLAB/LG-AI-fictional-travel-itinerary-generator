@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../domain/ssh/SSH.dart';
 import '../../providers/connection_providers.dart';
+import '../../widgets/custom_dialog.dart';
 
 
 class ConnectionScreen extends ConsumerStatefulWidget {
@@ -90,11 +91,17 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                       ),
                       onPressed: () {
                         updateProviders();
-                        if (!isConnectedToLg) _connectToLG();
+                        if (!isConnectedToLg){
+                          _connectToLG();
+                        }else{
+                           buildShowDialog(context, () {
+                             _disconnectToLg();
+                           });
+                        }
                       },
-                      child: const Text(
-                        Strings.connectToLg,
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      child: Text(
+                        isConnectedToLg ? Strings.disconnect: Strings.connectToLg,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -108,6 +115,19 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     );
   }
 
+  Future<dynamic> buildShowDialog(BuildContext context, VoidCallback onConfirm) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomDialog(onConfirm: () {
+          onConfirm();
+          Navigator.pop(context);
+        }, onCancel: () {
+          Navigator.pop(context);
+        });
+      },
+    );
+  }
 
   Future<void> _connectToLG() async {
     bool? result = await ssh.connectToLG(context);
@@ -118,6 +138,12 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
       SSH(ref: ref).showSplashLogo();
     }
   }
+  Future<void> _disconnectToLg() async {
+    bool? result = await ssh.disconnect(context);
+    ref.read(connectedProvider.notifier).state = result!;
+  }
+
+
 
   Widget customInput(TextEditingController controller, String labelText) {
     double width = MediaQuery.of(context).size.width;

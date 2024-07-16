@@ -3,6 +3,7 @@ class Strings{
   static const String noCitiesAdded = "No cities added yet.";
   static const String settings = "Settings";
   static const String connectToLg = "Connect to LG";
+  static const String disconnect = "Disconnect";
   static const String connected = "Connected";
   static const String disconnected = "Disconnected";
   static const String enterDestination = "Enter your destination";
