@@ -124,7 +124,10 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
           Navigator.pop(context);
         }, onCancel: () {
           Navigator.pop(context);
-        });
+        },
+          isErrorDialogue: false,
+          errorTitle: Strings.doDisconnect,
+        );
       },
     );
   }
