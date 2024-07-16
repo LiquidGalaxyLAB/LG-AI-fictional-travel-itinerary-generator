@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
@@ -13,8 +14,10 @@ import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/use_case/get_mo
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/destination_card.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/drop_down_class.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/snack_bar.dart';
 import '../../../data/model/GroqModel.dart';
 import '../../../injection_container.dart';
+import '../../widgets/custom_dialog.dart';
 import '../../widgets/cutom_circular_indicator.dart';
 import 'generated_sub_poi_page.dart';
 
@@ -80,6 +83,9 @@ class _AddCityState extends ConsumerState<AddCity> {
         isContentLoaded = true;
       } else {
         isContentLoaded = false;
+        buildShowDialog(context, () {
+
+        });
       }
     });
     print("this is the state of $isContentLoaded ${places.title?.length}");
@@ -100,6 +106,13 @@ class _AddCityState extends ConsumerState<AddCity> {
       print(e);
       return Places(name: [], description: [], address: [], title: "");
     }
+  }
+
+  void _showErrorDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => ErrorDialog(),
+    );
   }
 
   @override
@@ -141,6 +154,33 @@ class _AddCityState extends ConsumerState<AddCity> {
                     isContentLoaded: isContentLoaded,
                     getResponse: _getResponse,
                   ),
+                  SizedBox(height: 20),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.onBackgroundColor.withAlpha(120),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child:  Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                           Icon(Iconsax.info_circle, color: AppColors.textColor.withAlpha(192)),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              Strings.pleaseUseGemma7b,
+                              style: TextStyle(
+                                color: AppColors.textColor.withAlpha(200),
+                                fontSize: 16.0,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),
@@ -155,6 +195,61 @@ class _AddCityState extends ConsumerState<AddCity> {
   }
 }
 
+class ErrorDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/images/error_image.png', // Replace with your image path
+              height: 100,
+            ),
+            SizedBox(height: 20),
+            Text(
+              "No results found. Please try again with a different query.",
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("OK"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Future<dynamic> buildShowDialog(BuildContext context, VoidCallback onConfirm) {
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return CustomDialog(onConfirm: () {
+        onConfirm();
+        Navigator.pop(context);
+      }, onCancel: () {
+        Navigator.pop(context);
+      },
+        isErrorDialogue: true,
+        imgSrc: 'assets/images/errorface.svg',
+        errorTitle: Strings.parsingError,
+      );
+    },
+  );
+}
 
 class DestinationInputSection extends StatelessWidget {
   final double height;
