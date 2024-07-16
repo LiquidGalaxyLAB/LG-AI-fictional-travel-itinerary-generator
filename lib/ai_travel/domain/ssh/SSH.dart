@@ -86,48 +86,6 @@ class SSH {
     }
   }
 
-  /*initialConnect({int i = 0}) async {
-    SSHSocket socket;
-    try {
-      socket = await SSHSocket.connect(
-          ref.read(ipProvider), ref.read(portProvider),
-          timeout: const Duration(seconds: 5));
-    } catch (error) {
-      ref.read(isConnectedToLGProvider.notifier).state = false;
-      return;
-    }
-
-    ref.read(sshClientProvider.notifier).state = SSHClient(
-      socket,
-      username: ref.read(usernameProvider)!,
-      onPasswordRequest: () => ref.read(passwordProvider)!,
-    );
-
-    try {
-      final sftp = await ref.read(sshClientProvider)?.sftp();
-      await sftp?.open('/var/www/html/connection.txt',
-          mode: SftpFileOpenMode.create |
-          SftpFileOpenMode.truncate |
-          SftpFileOpenMode.write);
-    } catch (error) {
-      if (i < 2) {
-        ref.read(sshClientProvider)?.close();
-        ref.read(sshClientProvider.notifier).state = null;
-        ref.read(isConnectedToLGProvider.notifier).state = false;
-        return await initialConnect(i: i++);
-      } else {
-        return;
-      }
-    }
-    if (i == 0) {
-      await ref.read(sshClientProvider)?.run(
-          "echo '${BalloonMakers.blankBalloon()}' > /var/www/html/kml/slave_${ref.read(rightmostRigProvider)}.kml");
-      await ref.read(sshClientProvider)?.run(
-          "echo '${KMLMakers.screenOverlayImage(ImageConst.splashOnline, Const.splashAspectRatio)}' > /var/www/html/kml/slave_${ref.read(leftmostRigProvider)}.kml");
-      ref.read(isConnectedToLGProvider.notifier).state = true;
-    }
-  }*/
-
   showSplashLogo() async{
     await ref.read(sshClientProvider)?.execute(
         "echo '${KMLMakers.screenOverlayImage(ImageConst.splashOnline, Const.splashAspectRatio)}' > /var/www/html/kml/slave_${ref.read(leftmostRigProvider)}.kml");
