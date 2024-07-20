@@ -7,4 +7,5 @@ class ImageConst{
   static const lgLab = "assets/images/lg_logos/line_3/lg_lab.png";
   static const gdg = "assets/images/lg_logos/line_3/flutter_lleida.png";
   static const parcLleida = "assets/images/lg_logos/line_3/Parc_.png";
+  static const splashOnline = 'https://raw.githubusercontent.com/Rohit-554/LaserSlidesFlutter/master/lgAIGroqSplash.png';
 }

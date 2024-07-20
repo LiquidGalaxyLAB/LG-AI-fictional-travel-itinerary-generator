@@ -18,30 +18,55 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
     var isConnected = ref.watch(connectedProvider);
     return AppBar(
       elevation: 0,
-      title:  Padding(
+      title: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              Strings.appName,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.circle, color: isConnected ? Colors.green : Colors.redAccent, size: 14),
-                const SizedBox(width: 8),
-                Text(
-                  isConnected ? Strings.connected : Strings.disconnected,
-                  style: TextStyle(color: isConnected ? Colors.green : Colors.redAccent , fontSize: 14),
+                const Text(
+                  Strings.appName,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    Icon(Icons.circle, color: isConnected ? Colors.green : Colors.redAccent, size: 14),
+                    const SizedBox(width: 8),
+                    Text(
+                      isConnected ? Strings.connected : Strings.disconnected,
+                      style: TextStyle(color: isConnected ? Colors.green : Colors.redAccent, fontSize: 14),
+                    ),
+                  ],
                 ),
               ],
             ),
+            if (widget.isHomePage)
+              Row(
+                children: [
+                  const Text(
+                    "Made with",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    height: 40,
+                    child: Center(
+                      child: Image.asset(
+                        'assets/images/lg_logos/line_4/groq_tm.png',
+                        width: 40,
+                        height: 40,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),

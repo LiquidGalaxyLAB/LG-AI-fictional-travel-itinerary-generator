@@ -8,6 +8,8 @@ import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 
 import '../../core/kml/KmlMaker.dart';
 import '../../core/kml/NamePlaceBallon.dart';
+import '../../core/utils/Images.dart';
+import '../../core/utils/constants.dart';
 import '../../data/service/mapService.dart';
 import '../../presentation/providers/connection_providers.dart';
 import '../../presentation/widgets/snack_bar.dart';
@@ -85,6 +87,13 @@ class SSH {
     }
   }
 
+  showSplashLogo() async{
+    await ref.read(sshClientProvider)?.execute(
+        "echo '${KMLMakers.screenOverlayImage(ImageConst.splashOnline, Const.splashAspectRatio)}' > /var/www/html/kml/slave_${ref.read(leftmostRigProvider)}.kml");
+  }
+
+
+
 
   Future<String> getBase64Image(double latitude,double longitude) async{
     var base64 = await loadNearbyPlacesImages(latitude, longitude, "AIzaSyDZ9xpCY1-z6OGRLKBaCZ37RyJj9A2x8TI");
@@ -110,31 +119,38 @@ class SSH {
         <textColor>ffffffff</textColor>
         <text>
           <![CDATA[
-            <table border="0">
-              <tr>
-                <td><img src="data:image/jpeg;base64,${await getBase64Image(coordinates.latitude, coordinates.longitude)}" alt="Placeholder Image" width="200" height="200"/></td>
-              </tr>
-              <tr>
-                <td><b>$placeName</b></td>
-              </tr>
-              <tr>
-                <td>$data</td>
-              </tr>
-            </table>
-            <br/>
-            <b>Directions:</b> 
-            <a href="https://maps.google.com/maps?daddr=${coordinates.latitude},${coordinates.longitude}">To here</a> - 
-            <a href="https://maps.google.com/maps?saddr=${coordinates.latitude},${coordinates.longitude}">From here</a>
+            <div style="width:400vw;height:200vh;">
+              <table border="0" style="font-size:16px;width:100%;height:100%;">
+                <tr>
+                  <td><img src="data:image/jpeg;base64,${await getBase64Image(coordinates.latitude, coordinates.longitude)}" alt="Placeholder Image" width="200" height="200"/></td>
+                </tr>
+                <tr>
+                  <td><b>$placeName</b></td>
+                </tr>
+                <tr>
+                  <td>$data</td>
+                </tr>
+              </table>
+              <br/>
+              <b>Directions:</b> 
+              <a href="https://maps.google.com/maps?daddr=${coordinates.latitude},${coordinates.longitude}">To here</a> - 
+              <a href="https://maps.google.com/maps?saddr=${coordinates.latitude},${coordinates.longitude}">From here</a>
+            </div>
           ]]>
         </text>
         <bgColor>ff15151a</bgColor>
       </BalloonStyle>
     </Style>
     <Placemark id="ab">
-      <LookAt>
+      <Camera>
         <longitude>${coordinates.longitude}</longitude>
         <latitude>${coordinates.latitude}</latitude>
-      </LookAt>
+        <altitude>100</altitude>
+        <heading>0</heading>
+        <tilt>0</tilt>
+        <roll>0</roll>
+        <altitudeMode>relativeToGround</altitudeMode>
+      </Camera>
       <styleUrl>#about_style</styleUrl>
       <gx:balloonVisibility>1</gx:balloonVisibility>
       <Point>
@@ -144,11 +160,14 @@ class SSH {
   </Document>
 </kml>''';
 
-    // Execute the command with proper error handling
     try {
-      await _client?.execute("echo '$openLogoKML' > /var/www/html/kml/slave_${ref.read(rightmostRigProvider)}.kml");
+      // Escape single quotes in the KML string for the shell command
+      String escapedKML = openLogoKML.replaceAll("'", "'\\''");
+
+      // Execute the command to write the KML to the file on the server
+      await _client?.execute("echo '$escapedKML' > /var/www/html/kml/slave_${ref.read(rightmostRigProvider)}.kml");
     } catch (e) {
-      // Return a specific error message or log the error
+      // Log or handle the error
       return Future.error('Failed to execute SSH command: $e');
     }
   }

@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../domain/ssh/SSH.dart';
 import '../../providers/connection_providers.dart';
+import '../../widgets/custom_dialog.dart';
 
 
 class ConnectionScreen extends ConsumerStatefulWidget {
@@ -90,11 +91,17 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                       ),
                       onPressed: () {
                         updateProviders();
-                        if (!isConnectedToLg) _connectToLG();
+                        if (!isConnectedToLg){
+                          _connectToLG();
+                        }else{
+                           buildShowDialog(context, () {
+                             _disconnectToLg();
+                           });
+                        }
                       },
-                      child: const Text(
-                        Strings.connectToLg,
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      child: Text(
+                        isConnectedToLg ? Strings.disconnect: Strings.connectToLg,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -108,6 +115,22 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     );
   }
 
+  Future<dynamic> buildShowDialog(BuildContext context, VoidCallback onConfirm) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomDialog(onConfirm: () {
+          onConfirm();
+          Navigator.pop(context);
+        }, onCancel: () {
+          Navigator.pop(context);
+        },
+          isErrorDialogue: false,
+          errorTitle: Strings.doDisconnect,
+        );
+      },
+    );
+  }
 
   Future<void> _connectToLG() async {
     bool? result = await ssh.connectToLG(context);
@@ -115,8 +138,15 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     if(ref.read(connectedProvider)){
       ssh.ChatResponseBalloon("Lleida",LatLng(41.6177, 0.6200), "Hey there, I am Lleida, your travel assistant. How can I help you today?");
       ssh.execute();
+      SSH(ref: ref).showSplashLogo();
     }
   }
+  Future<void> _disconnectToLg() async {
+    bool? result = await ssh.disconnect(context);
+    ref.read(connectedProvider.notifier).state = result!;
+  }
+
+
 
   Widget customInput(TextEditingController controller, String labelText) {
     double width = MediaQuery.of(context).size.width;
@@ -144,71 +174,6 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> relaunchLg() async {
-    SSHSession? session = await SSH(ref: ref).relaunchLG(context);
-    if (session != null) {
-      print(session.stdout);
-    }else{
-      print('Session is null');
-    }
-  }
-
-  rebootLG(context) async {
-    try {
-      for (var i = 1; i <= ref.read(rigsProvider); i++) {
-        await ref.read(sshClientProvider)?.run(
-            'sshpass -p ${ref.read(passwordProvider)} ssh -t lg$i "echo ${ref.read(passwordProvider)} | sudo -S reboot');
-      }
-    } catch (error) {
-      SnackBarWidget().showSnackBar(context: context, message: error.toString(), color: Colors.red);
-    }
-  }
-
-  Future<void> shutdownLg() async {
-    SSHSession? session = await SSH(ref: ref).shutdownLG(context);
-    if (session != null) {
-      print(session.stdout);
-    }else{
-      print('Session is null');
-    }
-  }
-
-  Future<void> setRefresh() async {
-    SSHSession? session = await SSH(ref: ref).setRefresh(context);
-    if (session != null) {
-      print(session.stdout);
-    }else{
-      print('Session is null');
-    }
-  }
-
-  Future<void> resetRefresh() async {
-    SSHSession? session = await SSH(ref: ref).resetRefresh(context);
-    if (session != null) {
-      print(session.stdout);
-    }else{
-      print('Session is null');
-    }
-  }
-
-  Future<void> cleanSlaves() async {
-    SSHSession? session = await SSH(ref: ref).cleanSlaves(context);
-    if (session != null) {
-      print(session.stdout);
-    }else{
-      print('Session is null');
-    }
-  }
-
-  Future<void> cleanKml() async{
-    SSHSession? session = await SSH(ref: ref).cleanKML(context);
-    if (session != null) {
-      print(session.stdout);
-    }else{
-      print('Session is null');
-    }
   }
 
 

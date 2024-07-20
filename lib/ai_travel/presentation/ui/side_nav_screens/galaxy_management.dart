@@ -76,14 +76,16 @@ class _LiquidGalaxyManagementState
                             ControlButton(
                               icon: Icons.image,
                               label: 'Show Logo',
-                              onPressed: () {},
+                              onPressed: () {
+                                SSH(ref: ref).showSplashLogo();
+                              },
                             ),
                             Spacer(),
                             ControlButton(
                               icon: Icons.cleaning_services,
                               label: 'Clean KML',
                               onPressed: () {
-                                setRefresh();
+                                cleanSlaves();
                               },
                             ),
                           ],
@@ -199,7 +201,9 @@ class _LiquidGalaxyManagementState
   }
 
   Future<void> cleanSlaves() async {
-    await SSH(ref: ref).cleanSlaves(context);
+      await SSH(ref: ref).setRefresh(context);
+      await SSH(ref: ref).cleanSlaves(context);
+      await SSH(ref: ref).setRefresh(context);
   }
 
   Future<void> cleanKml() async {
