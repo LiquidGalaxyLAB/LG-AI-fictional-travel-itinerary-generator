@@ -293,8 +293,8 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
       if (latLng.isNotEmpty) {
         print("Lat and Lng ${latLng[0].latitude} ${latLng[0].longitude}");
         await SSH(ref: ref).setRefresh(context);
-        await SSH(ref: ref).cleanSlaves(context);
-        await SSH(ref: ref).cleanBalloon(context);
+       /* await SSH(ref: ref).cleanSlaves(context);
+        await SSH(ref: ref).cleanBalloon(context);*/
         await SSH(ref: ref).ChatResponseBalloon(places.description![i], LatLng(latLng[0].latitude, latLng[0].longitude),places.name![i]);
         print("Showing chat response for ${places.name![i]} at ${places.address![i]}");
         _navigate("${latLng[0].latitude}, ${latLng[0].longitude}");
@@ -304,8 +304,8 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
       await Future.delayed(const Duration(seconds: 8));
     }
     latLng.clear();
-    await SSH(ref: ref).cleanBalloon(context);
-    await SSH(ref: ref).cleanSlaves(context);
+   /* await SSH(ref: ref).cleanBalloon(context);
+    await SSH(ref: ref).cleanSlaves(context);*/
     await SSH(ref: ref).setRefresh(context);
   }
 

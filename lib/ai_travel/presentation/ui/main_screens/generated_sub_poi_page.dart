@@ -171,11 +171,5 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
   }
 
 
-  Future<void> _navigate(String location) async {
-    SSHSession? session = await SSH(ref: ref).search("$location");
-    if (session != null) {
-      print(session.stdout);
-    }
-  }
 
 }
