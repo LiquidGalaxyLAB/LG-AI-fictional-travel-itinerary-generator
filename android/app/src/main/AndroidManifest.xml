@@ -14,7 +14,7 @@
         tools:targetApi="honeycomb_mr2" />
 
     <application
-        android:label="LG AI Controller"
+        android:label="LG AI Travel Itinerary"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         >

@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -94,6 +96,8 @@ class SSH {
 
   Future<void> ChatResponseBalloon(String data, LatLng coordinates, String placeName) async {
     final _client = ref.read(sshClientProvider);
+
+    // Set the width and height using fractions for the content
     String openLogoKML = '''
 <?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
@@ -102,30 +106,38 @@ class SSH {
     <Style id="about_style">
       <BalloonStyle>
         <textColor>ffffffff</textColor>
+        <bgColor>ff15151a</bgColor>
         <text>
           <![CDATA[
-            <table border="0">
-              <tr>
-                <td><b>$placeName</b></td>
-              </tr>
-              <tr>
-                <td>$data</td>
-              </tr>
-            </table>
-            <br/>
-            <b>Directions:</b> 
-            <a href="https://maps.google.com/maps?daddr=${coordinates.latitude},${coordinates.longitude}">To here</a> - 
-            <a href="https://maps.google.com/maps?saddr=${coordinates.latitude},${coordinates.longitude}">From here</a>
+            <div style="width:400vw;height:200vh;">
+              <table border="0" style="font-size:16px;width:100%;height:100%;">
+                <tr>
+                  <td><b>$placeName</b></td>
+                </tr>
+                <tr>
+                  <td>$data</td>
+                </tr>
+              </table>
+              <br/>
+              <b>Directions:</b> 
+              <a href="https://maps.google.com/maps?daddr=${coordinates.latitude},${coordinates.longitude}">To here</a> - 
+              <a href="https://maps.google.com/maps?saddr=${coordinates.latitude},${coordinates.longitude}">From here</a>
+            </div>
           ]]>
         </text>
-        <bgColor>ff15151a</bgColor>
+        <maxWidth>800</maxWidth> <!-- Adjust maxWidth to a reasonable value -->
       </BalloonStyle>
     </Style>
     <Placemark id="ab">
-      <LookAt>
+      <Camera>
         <longitude>${coordinates.longitude}</longitude>
         <latitude>${coordinates.latitude}</latitude>
-      </LookAt>
+        <altitude>100</altitude>
+        <heading>0</heading>
+        <tilt>0</tilt>
+        <roll>0</roll>
+        <altitudeMode>relativeToGround</altitudeMode>
+      </Camera>
       <styleUrl>#about_style</styleUrl>
       <gx:balloonVisibility>1</gx:balloonVisibility>
       <Point>
@@ -135,11 +147,14 @@ class SSH {
   </Document>
 </kml>''';
 
-    // Execute the command with proper error handling
     try {
-      await _client?.execute("echo '$openLogoKML' > /var/www/html/kml/slave_${ref.read(rightmostRigProvider)}.kml");
+      // Escape single quotes in the KML string for the shell command
+      String escapedKML = openLogoKML.replaceAll("'", "'\\''");
+
+      // Execute the command to write the KML to the file on the server
+      await _client?.execute("echo '$escapedKML' > /var/www/html/kml/slave_${ref.read(rightmostRigProvider)}.kml");
     } catch (e) {
-      // Return a specific error message or log the error
+      // Log or handle the error
       return Future.error('Failed to execute SSH command: $e');
     }
   }
