@@ -295,7 +295,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
         await SSH(ref: ref).setRefresh(context);
        /* await SSH(ref: ref).cleanSlaves(context);
         await SSH(ref: ref).cleanBalloon(context);*/
-        await SSH(ref: ref).ChatResponseBalloon(places.description![i], LatLng(latLng[0].latitude, latLng[0].longitude),places.name![i]);
+        await SSH(ref: ref).chatResponseBalloon(places.description![i], LatLng(latLng[0].latitude, latLng[0].longitude),places.name![i]);
         print("Showing chat response for ${places.name![i]} at ${places.address![i]}");
         _navigate("${latLng[0].latitude}, ${latLng[0].longitude}");
       } else {

@@ -96,8 +96,13 @@ class SSH {
 
 
   Future<String> getBase64Image(double latitude,double longitude) async{
-    var base64 = await loadNearbyPlacesImages(latitude, longitude, "AIzaSyDZ9xpCY1-z6OGRLKBaCZ37RyJj9A2x8TI");
-    return base64;
+    try{
+      var base64 = await loadNearbyPlacesImages(latitude, longitude, "AIzaSyDZ9xpCY1-z6OGRLKBaCZ37RyJj9A2x8TI");
+      return base64;
+    }catch(e){
+      print("$e this is error of image");
+      return 'https://raw.githubusercontent.com/Rohit-554/LaserSlidesFlutter/master/explore.png';
+    }
   }
 
   String base64Stringtest(){
@@ -107,7 +112,7 @@ class SSH {
     return base64;
   }
 
-  Future<void> ChatResponseBalloon(String data, LatLng coordinates, String placeName) async {
+  Future<void> chatResponseBalloon(String data, LatLng coordinates, String placeName) async {
     final _client = ref.read(sshClientProvider);
     String openLogoKML = '''
 <?xml version="1.0" encoding="UTF-8"?>
