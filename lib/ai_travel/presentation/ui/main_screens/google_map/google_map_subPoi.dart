@@ -6,11 +6,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/core/utils/extensions.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/GroqModel.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
 import 'package:geocoding/geocoding.dart';
 
+import '../../../../core/utils/constants.dart';
 import '../../../../domain/ssh/SSH.dart';
 
 class GoogleMapScreen extends ConsumerStatefulWidget {
@@ -89,7 +91,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
 
   void _startTour() {
     _showChatResponse(widget.place);
-    _timer = Timer.periodic(Duration(seconds: 8), (Timer timer) async {
+    _timer = Timer.periodic(Duration(seconds: 12), (Timer timer) async {
       final GoogleMapController controller = await _controller.future;
       if (_currentPlaceIndex >= widget.place.description!.length) {
         _currentPlaceIndex = 0;
@@ -285,6 +287,33 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
     }
   }
 
+  Future<void> _flyTo(double latitude, double longitude, double zoom, double tilt, double bearing) async{
+    SSHSession? session = await SSH(ref: ref).flyToOrbit(context, latitude, longitude, zoom, tilt, bearing);
+    if (session != null) {
+      print("flyTo ${session.stdout}");
+    }
+  }
+
+  //define startOrbit
+  Future<void> _startOrbit(double latitude, double longitude, double zoom, double tilt, double bearing) async{
+    await Future.delayed(const Duration(milliseconds: 1000));
+    for (int i = 0; i <= 360; i += 10) {
+      if (!mounted) {
+        return;
+      }
+      SSH(ref: ref).flyToOrbit(
+          context,
+          latitude,
+          longitude,
+          Const.orbitZoomScale.zoomLG,
+          60,
+          i.toDouble());
+      await Future.delayed(const Duration(milliseconds: 1000));
+    }
+
+  }
+
+
 
   void _showChatResponse(Places places) async {
     List<Location> latLng = [];
@@ -297,11 +326,12 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
         await SSH(ref: ref).cleanBalloon(context);*/
         await SSH(ref: ref).ChatResponseBalloon(places.description![i], LatLng(latLng[0].latitude, latLng[0].longitude),places.name![i]);
         print("Showing chat response for ${places.name![i]} at ${places.address![i]}");
-        _navigate("${latLng[0].latitude}, ${latLng[0].longitude}");
+        _flyTo(latLng[0].latitude,latLng[0].longitude,150, 60, 0);
+        /*_navigate("${latLng[0].latitude}, ${latLng[0].longitude}");*/
       } else {
         print("No coordinates found for ${places.name![i]}");
       }
-      await Future.delayed(const Duration(seconds: 8));
+      await Future.delayed(const Duration(seconds: 12));
     }
     latLng.clear();
    /* await SSH(ref: ref).cleanBalloon(context);
