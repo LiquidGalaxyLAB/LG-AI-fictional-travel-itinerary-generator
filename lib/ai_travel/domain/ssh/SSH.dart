@@ -95,14 +95,16 @@ class SSH {
 
 
 
-  Future<String> getBase64Image(double latitude,double longitude) async{
-    try{
-      var base64 = await loadNearbyPlacesImages(latitude, longitude, "AIzaSyDZ9xpCY1-z6OGRLKBaCZ37RyJj9A2x8TI");
-      return base64;
+  Future<String> getBase64Image(String placeName) async{
+    var base64 = await loadNearbyPlacesImages(apiKey: "AIzaSyDZ9xpCY1-z6OGRLKBaCZ37RyJj9A2x8TI", textQuery: placeName);
+    print("base64 $base64");
+    return base64;
+    /*try{
+
     }catch(e){
       print("$e this is error of image");
       return 'https://raw.githubusercontent.com/Rohit-554/LaserSlidesFlutter/master/explore.png';
-    }
+    }*/
   }
 
   String base64Stringtest(){
@@ -112,7 +114,7 @@ class SSH {
     return base64;
   }
 
-  Future<void> chatResponseBalloon(String data, LatLng coordinates, String placeName) async {
+  Future<void> chatResponseBalloon(String data, LatLng coordinates, String placeName, String textQuery) async {
     final _client = ref.read(sshClientProvider);
     String openLogoKML = '''
 <?xml version="1.0" encoding="UTF-8"?>
@@ -127,7 +129,7 @@ class SSH {
             <div style="width:400vw;height:200vh;">
               <table border="0" style="font-size:16px;width:100%;height:100%;">
                 <tr>
-                  <td><img src="data:image/jpeg;base64,${await getBase64Image(coordinates.latitude, coordinates.longitude)}" alt="Placeholder Image" width="200" height="200"/></td>
+                  <td><img src="data:image/jpeg;base64,${await getBase64Image(textQuery)}" alt="Placeholder Image" width="200" height="200"/></td>
                 </tr>
                 <tr>
                   <td><b>$placeName</b></td>

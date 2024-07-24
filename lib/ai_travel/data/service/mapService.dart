@@ -1,37 +1,54 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-
-import 'dart:typed_data';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-Future<List<String>> getNearbyPlacesPhotoReferences({required double latitude, required double longitude, required String apiKey}) async {
-  final String url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=$latitude,$longitude&radius=1500&key=$apiKey';
+Future<List<String>> searchPlacesByText({
+  required String textQuery,
+  required String apiKey,
+}) async {
+  final String url = 'https://places.googleapis.com/v1/places:searchText';
+  final response = await http.post(
+    Uri.parse(url),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': apiKey,
+      'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.photos',
+    },
+    body: jsonEncode({'textQuery': textQuery}),
+  );
 
-  final http.Response response = await http.get(Uri.parse(url));
-  print("Response: ${latitude} ${longitude}  ${apiKey} ${response.body}");
   if (response.statusCode == 200) {
     final Map<String, dynamic> data = jsonDecode(response.body);
-    List<String> photoReferences = [];
-    for (var place in data['results']) {
-      if (place['photos'] != null && place['photos'].isNotEmpty) {
-        photoReferences.add(place['photos'][0]['photo_reference']);
+
+    // Debugging print
+    print('API Response: $data');
+
+    // Check if 'places' is present and is a list
+    final places = data['places'];
+    if (places is List) {
+      List<String> photoReferences = [];
+      for (var place in places) {
+        if (place['photos'] != null && place['photos'].isNotEmpty) {
+          // Use the 'name' field from the 'photos' list
+          photoReferences.add(place['photos'][0]['name']);
+        }
       }
+      return photoReferences;
+    } else {
+      throw Exception('Unexpected data format: places is not a list');
     }
-    return photoReferences;
   } else {
-    throw Exception('Failed to load nearby places');
+    throw Exception('Failed to search places: ${response.statusCode}');
   }
 }
 
-String uint8ListToBase64(Uint8List data) {
-  return base64Encode(data);
-}
-
-Future<Uint8List> fetchPlaceImage({required String photoReference, required String apiKey}) async {
-  final String url = 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=$photoReference&key=$apiKey';
-
+Future<Uint8List> fetchPlaceImage({
+  required String photoReference,
+  required String apiKey,
+}) async {
+  print('Fetching image for photoReference: $photoReference');
+  final String url = 'https://places.googleapis.com/v1/$photoReference/media?maxHeightPx=400&maxWidthPx=400&key=$apiKey';
   final http.Response response = await http.get(Uri.parse(url));
 
   if (response.statusCode == 200) {
@@ -41,24 +58,12 @@ Future<Uint8List> fetchPlaceImage({required String photoReference, required Stri
   }
 }
 
-Future<String> fetchPlaceImage2({required String photoReference, required String apiKey}) async {
-  final String url = 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=$photoReference&key=$apiKey';
-
-  final http.Response response = await http.get(Uri.parse(url));
-
-  if (response.statusCode == 200) {
-    final bytes = response.bodyBytes;
-    return base64Encode(bytes);
-  } else {
-    throw Exception('Failed to load place image');
-  }
-}
-
-
-Future<String> loadNearbyPlacesImages(double latitude, double longitude, String apiKey) async {
-  List<String> photoReferences = await getNearbyPlacesPhotoReferences(
-    latitude: latitude,
-    longitude: longitude,
+Future<String> loadNearbyPlacesImages({
+  required String textQuery,
+  required String apiKey,
+}) async {
+  List<String> photoReferences = await searchPlacesByText(
+    textQuery: textQuery,
     apiKey: apiKey,
   );
 
@@ -66,17 +71,16 @@ Future<String> loadNearbyPlacesImages(double latitude, double longitude, String 
     throw Exception('No photo references found.');
   }
 
-  try{
+  try {
     String firstPhotoReference = photoReferences[0];
-    Uint8List image = await fetchPlaceImage(photoReference: firstPhotoReference, apiKey: apiKey);
-    String image2 = await fetchPlaceImage2(photoReference: firstPhotoReference, apiKey: apiKey);
-    String base64Image = base64Encode(image);
-    return image2;
-  }catch(e){
-    print("!@# $e");
+
+    Uint8List imageBytes = await fetchPlaceImage(
+      photoReference: firstPhotoReference,
+      apiKey: apiKey,
+    );
+    return base64Encode(imageBytes);
+  } catch (e) {
+    print("Error fetching image: $e");
     return 'https://drive.google.com/file/d/1z7Qu17dyVYW84YLad4wL7qkZ9RdfKpwy/preview';
   }
-
-
 }
-

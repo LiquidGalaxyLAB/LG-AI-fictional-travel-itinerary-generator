@@ -100,9 +100,8 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
         });
         timer.cancel();
       } else {
-
         /*_loadChatResponses(widget.place);*/
-        LatLng target = await _getLatLngForPlace(widget.place.name![_currentPlaceIndex]);
+        LatLng target = await _getLatLngForPlace(widget.place.name![_currentPlaceIndex], widget.place.address![_currentPlaceIndex]);
         _goToTheNextDescription();
         controller.animateCamera(CameraUpdate.newCameraPosition(
           CameraPosition(
@@ -117,12 +116,13 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
     });
   }
 
-  Future<LatLng> _getLatLngForPlace(String place) async {
-    List<Location> latlng = await locationFromAddress(place);
+  Future<LatLng> _getLatLngForPlace(String place, String address) async {
+    print("thisIsPlace: $place $address");
+    List<Location> latlng = await locationFromAddress("$place $address");
     if (latlng.isNotEmpty) {
       return LatLng(latlng[0].latitude!, latlng[0].longitude!);
     }
-    return LatLng(0, 0);
+    return const LatLng(0, 0);
   }
 
   Widget _buildItem(BuildContext context, int index, String item, Animation<double> animation) {
@@ -320,11 +320,11 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
     for (int i = 0; i < places.name!.length; i++) {
       latLng = await locationFromAddress("${places.name![i]}, ${places.address![i]}");
       if (latLng.isNotEmpty) {
-        print("Lat and Lng ${latLng[0].latitude} ${latLng[0].longitude}");
+        print("Lat and Lng ${latLng[0].latitude} ${latLng[0].longitude} ");
         await SSH(ref: ref).setRefresh(context);
        /* await SSH(ref: ref).cleanSlaves(context);
         await SSH(ref: ref).cleanBalloon(context);*/
-        await SSH(ref: ref).chatResponseBalloon(places.description![i], LatLng(latLng[0].latitude, latLng[0].longitude),places.name![i]);
+        await SSH(ref: ref).chatResponseBalloon(places.description![i], LatLng(latLng[0].latitude, latLng[0].longitude),places.name![i],"${places.name![i]} is a ${places.description![i]}");
         print("Showing chat response for ${places.name![i]} at ${places.address![i]}");
         _flyTo(latLng[0].latitude,latLng[0].longitude,150, 60, 0);
         /*_navigate("${latLng[0].latitude}, ${latLng[0].longitude}");*/
