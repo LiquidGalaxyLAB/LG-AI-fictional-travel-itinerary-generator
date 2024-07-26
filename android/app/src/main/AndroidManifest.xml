@@ -16,7 +16,7 @@
     <application
         android:label="LG AI Travel Itinerary"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ai_travel_itinerary_logo"
         >
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDZ9xpCY1-z6OGRLKBaCZ37RyJj9A2x8TI"/>
