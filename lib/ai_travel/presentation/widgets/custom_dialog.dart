@@ -11,6 +11,7 @@ class CustomDialog extends StatelessWidget {
   final String imgSrc;
   final bool isErrorDialogue;
   final String errorTitle;
+  final String dialogTitle;
 
   const CustomDialog({
     required this.onConfirm,
@@ -18,6 +19,7 @@ class CustomDialog extends StatelessWidget {
     this.imgSrc = 'assets/images/thinking.png',
     this.isErrorDialogue = false,
     this.errorTitle = 'Parsing Error',
+    this.dialogTitle = 'Are you sure?',
   });
 
   @override
@@ -73,7 +75,7 @@ class CustomDialog extends StatelessWidget {
                 ),
                 SizedBox(height: 16),
                 Text(
-                  isErrorDialogue ? errorTitle : 'Are you sure?', // Replace with Strings.areYouSure
+                  isErrorDialogue ? errorTitle : dialogTitle, // Replace with Strings.areYouSure
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                 ),
@@ -122,9 +124,9 @@ class CustomButton extends StatelessWidget {
         onPressed: onConfirm,
         style: OutlinedButton.styleFrom(
           side: BorderSide(
-            color: isDanger ? Colors.redAccent : Colors.blue,
+            color: isDanger ? Colors.blue : Colors.redAccent,
           ),
-          backgroundColor: Colors.transparent,
+          backgroundColor: isDanger ? Colors.transparent : Colors.redAccent,
           padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16), // Adjusted padding
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
@@ -133,7 +135,7 @@ class CustomButton extends StatelessWidget {
         child: Text(
           btnTitle,
           style: TextStyle(
-            color: isDanger ? Colors.redAccent : Colors.blue,
+            color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),

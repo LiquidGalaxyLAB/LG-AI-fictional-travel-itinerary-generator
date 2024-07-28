@@ -96,7 +96,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                         }else{
                            buildShowDialog(context, () {
                              _disconnectToLg();
-                           });
+                           }, "Are you sure you want to disconnect?");
                         }
                       },
                       child: Text(
@@ -115,7 +115,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     );
   }
 
-  Future<dynamic> buildShowDialog(BuildContext context, VoidCallback onConfirm) {
+  Future<dynamic> buildShowDialog(BuildContext context, VoidCallback onConfirm, String dialogTitle) {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -127,6 +127,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
         },
           isErrorDialogue: false,
           errorTitle: Strings.doDisconnect,
+          dialogTitle: dialogTitle,
         );
       },
     );
@@ -141,12 +142,11 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
       SSH(ref: ref).showSplashLogo();
     }
   }
+
   Future<void> _disconnectToLg() async {
     bool? result = await ssh.disconnect(context);
     ref.read(connectedProvider.notifier).state = result!;
   }
-
-
 
   Widget customInput(TextEditingController controller, String labelText) {
     double width = MediaQuery.of(context).size.width;
