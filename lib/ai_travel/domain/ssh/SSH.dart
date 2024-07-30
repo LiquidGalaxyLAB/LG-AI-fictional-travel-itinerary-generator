@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 
 import '../../core/kml/KmlMaker.dart';
+import '../../core/kml/LookAt.dart';
 import '../../core/kml/NamePlaceBallon.dart';
 import '../../core/utils/Images.dart';
 import '../../core/utils/constants.dart';
@@ -40,6 +41,20 @@ class SSH {
       print('Failed to connect: $e');
       customWidgets.showSnackBar(context: context, message: e.toString(), color: Colors.red);
       return false;
+    }
+  }
+
+  Future<SSHSession?> motionControls (double updownflag, double rightleftflag, double zoomflag, double tiltflag, double bearingflag) async {
+    _client = ref.read(sshClientProvider);
+    LookAt flyto = LookAt(rightleftflag, updownflag, zoomflag.toString(),
+        tiltflag.toString(), bearingflag.toString());
+    try {
+      final session = await _client?.execute(
+          'echo "flytoview=${flyto.generateLinearString()}" > /tmp/query.txt');
+      return session;
+    } catch (e) {
+      print('Could not connect to host LG');
+      return Future.error(e);
     }
   }
 
