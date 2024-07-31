@@ -15,11 +15,14 @@ import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.da
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/destination_card.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/drop_down_class.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/snack_bar.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 import '../../../data/model/GroqModel.dart';
 import '../../../injection_container.dart';
 import '../../widgets/custom_dialog.dart';
 import '../../widgets/cutom_circular_indicator.dart';
 import 'generated_sub_poi_page.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 class AddCity extends ConsumerStatefulWidget {
   final String initialText;
@@ -39,7 +42,7 @@ class _AddCityState extends ConsumerState<AddCity> {
   late Place place = Place(name: "", location: [], description: "", address: '', place: '');
   late Places places = Places(name: [], description: [], address: [], title: "");
   var isLoading = false;
-
+  SpeechToText _speechToText = SpeechToText();
   @override
   void initState() {
     super.initState();
@@ -153,6 +156,7 @@ class _AddCityState extends ConsumerState<AddCity> {
                     isLoading: isLoading,
                     isContentLoaded: isContentLoaded,
                     getResponse: _getResponse,
+                    speechToText: _speechToText,
                   ),
                   SizedBox(height: 20),
                   Container(
@@ -251,12 +255,13 @@ Future<dynamic> buildShowDialog(BuildContext context, VoidCallback onConfirm) {
   );
 }
 
-class DestinationInputSection extends StatelessWidget {
+class DestinationInputSection extends StatefulWidget {
   final double height;
   final TextEditingController textEditingController;
   final bool isLoading;
   final bool isContentLoaded;
   final void Function(String) getResponse;
+  final SpeechToText speechToText;
 
   const DestinationInputSection({
     Key? key,
@@ -265,14 +270,22 @@ class DestinationInputSection extends StatelessWidget {
     required this.isLoading,
     required this.isContentLoaded,
     required this.getResponse,
+    required this.speechToText,
   }) : super(key: key);
 
+  @override
+  State<DestinationInputSection> createState() => _DestinationInputSectionState();
+}
+
+class _DestinationInputSectionState extends State<DestinationInputSection> {
+  bool _speechEnabled = false;
+  String _lastWords = '';
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         Container(
-          height: height * 0.5,
+          height: widget.height * 0.5,
           decoration: BoxDecoration(
             color: AppColors.onBackgroundColor,
             borderRadius: BorderRadius.circular(10.0),
@@ -316,7 +329,7 @@ class DestinationInputSection extends StatelessWidget {
                         child: TextField(
                           cursorColor: AppColors.textColor,
                           textAlign: TextAlign.start,
-                          controller: textEditingController,
+                          controller: widget.textEditingController,
                           textAlignVertical: TextAlignVertical.top,
                           maxLines: null,
                           expands: true,
@@ -341,17 +354,53 @@ class DestinationInputSection extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8.0),
-                      Container(
-                        alignment: Alignment.center,
-                        child: isLoading
-                            ? Container()
-                            : CustomButtonWidget(
-                          text: Strings.explore,
-                          onPressed: () {
-                            getResponse(textEditingController.text);
-                          },
-                        ),
-                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 9,
+                            child: Container(
+                              alignment: Alignment.center,
+                              child: widget.isLoading
+                                  ? Container()
+                                  : CustomButtonWidget(
+                                text: Strings.explore,
+                                onPressed: () {
+                                  widget.getResponse(widget.textEditingController.text);
+                                },
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Container(
+                              alignment: Alignment.center,
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                ),
+                                child: IconButton(
+                                  icon: widget.speechToText.isNotListening
+                                      ? Icon(Icons.mic_off)
+                                      : Icon(Icons.mic),
+                                  onPressed: () {
+                                    if (widget.speechToText.isNotListening) {
+                                      _startListening();
+                                      _lastWords = "";
+                                      widget.textEditingController.text = _lastWords;
+                                    } else {
+                                      _stopListening();
+                                    }
+                                  },
+                                  iconSize: 20, // Adjust the icon size if needed
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      )
                     ],
                   ),
                 ),
@@ -359,10 +408,10 @@ class DestinationInputSection extends StatelessWidget {
             ],
           ),
         ),
-        if (isLoading)
+        if (widget.isLoading)
           Center(
             child: Container(
-              height: height * 0.5,
+              height: widget.height * 0.5,
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(10.0),
@@ -385,5 +434,34 @@ class DestinationInputSection extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initSpeech();
+
+  }
+
+  void _initSpeech() async {
+    _speechEnabled = await widget.speechToText.initialize();
+    setState(() {});
+  }
+
+  void _startListening() async {
+    await widget.speechToText.listen(onResult: _onSpeechResult);
+    setState(() {});
+  }
+
+  void _stopListening() async {
+    await widget.speechToText.stop();
+    setState(() {});
+  }
+
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      _lastWords = result.recognizedWords;
+      widget.textEditingController.text = result.recognizedWords;
+    });
   }
 }
