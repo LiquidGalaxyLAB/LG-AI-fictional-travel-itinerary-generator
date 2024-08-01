@@ -9,6 +9,7 @@ import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/core/utils/extensions.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/GroqModel.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/presentation/providers/connection_providers.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
 import 'package:geocoding/geocoding.dart';
 
@@ -89,20 +90,52 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
     }
   }
 
-  void _startTour() {
-    _showChatResponse(widget.place);
-    _timer = Timer.periodic(Duration(seconds: 12), (Timer timer) async {
-      final GoogleMapController controller = await _controller.future;
-      if (_currentPlaceIndex >= widget.place.description!.length) {
+  void _startTour() async {
+    final GoogleMapController controller = await _controller.future;
+
+    if (_currentPlaceIndex == 0 && widget.place.description!.isNotEmpty) {
+      // Initialize the first place details
+      // _newVoiceText = "${widget.place.name![_currentPlaceIndex]} is ${widget.place.description![_currentPlaceIndex]}";
+
+      LatLng target = await _getLatLngForPlace(
+          widget.place.name![0],
+          widget.place.address![0]
+      );
+
+      controller.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: target,
+          zoom: 19.151926040649414,
+          tilt: 59.440717697143555,
+          bearing: 192.8334901395799,
+        ),
+      ));
+
+      // await _speak();
+    }
+
+    // Define the update place details function
+    Future<void> _updatePlaceDetails() async {
+      int newIteratorIndex = _currentPlaceIndex + 1;
+
+      if (newIteratorIndex >= widget.place.description!.length) {
         _currentPlaceIndex = 0;
         setState(() {
           isPlaying = false;
         });
-        timer.cancel();
+        _timer?.cancel();
       } else {
-        /*_loadChatResponses(widget.place);*/
-        LatLng target = await _getLatLngForPlace(widget.place.name![_currentPlaceIndex], widget.place.address![_currentPlaceIndex]);
+        LatLng target = await _getLatLngForPlace(
+            widget.place.name![newIteratorIndex],
+            widget.place.address![newIteratorIndex]
+        );
+
+        print("Target: $newIteratorIndex");
+        // _newVoiceText = "${widget.place.name![newIteratorIndex]} is ${widget.place.description![newIteratorIndex]}";
+
+        // await _speak();
         _goToTheNextDescription();
+
         controller.animateCamera(CameraUpdate.newCameraPosition(
           CameraPosition(
             target: target,
@@ -111,10 +144,18 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
             bearing: 192.8334901395799,
           ),
         ));
+
         _currentPlaceIndex++;
       }
+    }
+
+    // Start the periodic updates after initializing the first place
+    Future.delayed(Duration(seconds: 12), () {
+      _updatePlaceDetails();
+      _timer = Timer.periodic(Duration(seconds: 12), (timer) => _updatePlaceDetails());
     });
   }
+
 
   Future<LatLng> _getLatLngForPlace(String place, String address) async {
     print("thisIsPlace: $place $address");
