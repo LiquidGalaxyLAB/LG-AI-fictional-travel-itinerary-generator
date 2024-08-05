@@ -15,7 +15,8 @@ class Strings{
   static const String disconnectCompleted = "Disconnect completed";
   static const String parsingError = "Error: getting the Information, Please switch to gemma-7b-it for best experience";
   static const String pleaseUseGemma7b = "Please use gemma-7b-it for best experience";
-
+  static const String description = "Description";
+  static const String reviews = "Reviews";
 }
 
 const String gemma7b = "gemma-7b-it";
