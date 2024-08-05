@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/config/route/routes.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/main_screens/google_map/google_map_subPoi.dart';
 
@@ -13,6 +14,7 @@ import '../../../config/theme/app_theme.dart';
 import '../../../domain/ssh/SSH.dart';
 import '../../widgets/app_bar.dart';
 import '../../widgets/destination_card.dart';
+import 'home_page.dart';
 class GeneratedSubPoiPage extends ConsumerStatefulWidget {
   final Places places;
   const GeneratedSubPoiPage({super.key, required this.places});
@@ -86,43 +88,6 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
                                   ),
                                 ),
                                 const SizedBox(height: 10.0),
-                                const Row(
-                                  children: [
-                                    Icon(
-                                      Iconsax.location,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                    SizedBox(width: 5.0),
-                                    Text(
-                                      "Unknown",
-                                      // Replace with your text
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 2.0),
-                                const Row(
-                                  children: [
-                                    Icon(
-                                      Iconsax.map,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                    SizedBox(width: 5.0),
-                                    Text(
-                                      "Multiple Location",
-                                      // Replace with your text
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
                                 SizedBox(height: 10.0),
                                 Expanded(
                                   child: SingleChildScrollView(
@@ -148,9 +113,19 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
                                   alignment: Alignment.center,
                                   child: CustomButtonWidget(
                                     onPressed: () {
-                                      //Navigator.push(context, MaterialPageRoute(builder: (context) => MapSample()));
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => GoogleMapScreen(place: widget.places)));
-                                      /*_loadChatResponses(widget.places);*/
+                                      Navigator.push(
+                                        context,
+                                        SlidingPageRoute(page: GoogleMapScreen(place: widget.places)),
+                                      ).then((_) {
+                                        Navigator.pushAndRemoveUntil(
+                                          context,
+                                          SlidingPageRoute(page: HomePage()),
+                                              (route) {
+                                            // Keep the route if it's the homePage route or if it's the root route
+                                            return route.settings.name == homePage || !Navigator.canPop(context);
+                                          },
+                                        );
+                                      });
                                     },
                                   ),
                                 ),

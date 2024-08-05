@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dartssh2/dartssh2.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -35,8 +36,8 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     ipController.text = ref.read(ipProvider);
     usernameController.text = ref.read(usernameProvider);
     passwordController.text = ref.read(passwordProvider);
-    portController.text = ref.read(portProvider).toString();
-    rigsController.text = ref.read(rigsProvider).toString();
+    portController.text = "22";
+    rigsController.text = "3";
   }
 
 
@@ -64,7 +65,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     double paddingValue = width * 0.2;
     return SafeArea(
       child: Scaffold(
-        appBar: const CustomAppBar(),
+        appBar: const CustomAppBar(shouldShowSettingsIcon: false,),
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(40),
@@ -73,9 +74,9 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                /* ShowConnection(status: isConnectedToLg),*/
                 customInput(ipController, "IP Address"),
                 customInput(usernameController, "Username"),
-                customInput(passwordController, "Password"),
-                customInput(portController, "Port"),
-                customInput(rigsController, "Rigs"),
+                customInput(passwordController, "Password",isPassword: true),
+                customInput(portController, "Port",isNumber: true),
+                customInput(rigsController, "Rigs",isNumber: true),
                 /*customInput(chatUserNameController, "Enter your name"),*/
                 Padding(
                   padding:  EdgeInsets.only(left: paddingValue, right: paddingValue, top: 10, bottom: 10),
@@ -137,7 +138,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     bool? result = await ssh.connectToLG(context);
     ref.read(connectedProvider.notifier).state = result!;
     if(ref.read(connectedProvider)){
-      ssh.chatResponseBalloon("Lleida",LatLng(41.6177, 0.6200), "Hey there, I am Lleida, your travel assistant. How can I help you today?","Lleida Spain");
+      ssh.chatResponseBalloon("Ready for some imaginations to explore?",LatLng(41.6177, 0.6200), "Welcome!","Lleida Spain");
       ssh.execute();
       SSH(ref: ref).showSplashLogo();
     }
@@ -148,31 +149,50 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     ref.read(connectedProvider.notifier).state = result!;
   }
 
-  Widget customInput(TextEditingController controller, String labelText) {
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
-    double paddingValue = width * 0.2;
-    return Padding(
-      padding:  EdgeInsets.only(left: paddingValue, right: paddingValue, top: 10, bottom: 10),
-      child: TextFormField(
-        controller: controller,
-        style: TextStyle(color: Colors.white), // Text color
-        decoration: InputDecoration(
-          labelText: labelText,
-          labelStyle: TextStyle(color: Colors.white),
-          filled: true,
-          fillColor: Color(0xFF2D2F3A),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5.0),
-            borderSide: const BorderSide(color: Colors.white),
+  Widget customInput(TextEditingController controller, String labelText, {bool isPassword = false, bool isNumber = false}) {
+    return StatefulBuilder(
+      builder: (BuildContext context, StateSetter setState) {
+        bool _obscureText = true;
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2, vertical: 10),
+          child: TextFormField(
+            controller: controller,
+            obscureText: isPassword ? _obscureText : false,
+            keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+            inputFormatters: isNumber ? [FilteringTextInputFormatter.digitsOnly] : [],
+            style: TextStyle(color: Colors.white), // Text color
+            decoration: InputDecoration(
+              labelText: labelText,
+              labelStyle: TextStyle(color: Colors.white),
+              filled: true,
+              fillColor: Color(0xFF2D2F3A),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.0),
+                borderSide: const BorderSide(color: Colors.white),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.0),
+                borderSide: const BorderSide(color: Colors.white),
+              ),
+              contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+              suffixIcon: isPassword
+                  ? IconButton(
+                icon: Icon(
+                  _obscureText ? Icons.visibility_off : Icons.visibility,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscureText = !_obscureText;
+                  });
+                },
+              )
+                  : null,
+            ),
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5.0),
-            borderSide: const BorderSide(color: Colors.white),
-          ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-        ),
-      ),
+        );
+      },
     );
   }
 

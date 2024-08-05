@@ -55,7 +55,7 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                           child: FadeInAnimation(child: widget),
                         ),
                     children: [
-                      _buildHeader(),
+                      ShowLogos(isSplashScreen: false),
                       SizedBox(height: 50),
                       _buildDescription(),
                       SizedBox(height: 30),
@@ -64,7 +64,6 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                       Divider(
                           thickness: 1, color: Colors.white.withOpacity(0.5)),
                       SizedBox(height: 20),
-                      ShowLogos()
                     ],
                   ),
                 ),

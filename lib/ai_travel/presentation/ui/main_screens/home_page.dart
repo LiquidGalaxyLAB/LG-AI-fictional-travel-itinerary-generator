@@ -83,11 +83,11 @@ class _HomePageState extends State<HomePage> {
             Navigator.pushNamed(context, '/addCity');
           },
           label: const Text(
-            'Add city',
+            'Explore city',
             style: TextStyle(color: Colors.white),
           ),
           icon: const Icon(
-            Icons.add,
+            Icons.explore,
             color: Colors.white,
           ),
           backgroundColor: AppColors.tertiaryColor,
@@ -197,7 +197,7 @@ class DrawerWidget extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.logout,color: Colors.white,),
+              leading: Icon(Icons.info_outline,color: Colors.white,),
               title: Text('About', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.pop(context);
