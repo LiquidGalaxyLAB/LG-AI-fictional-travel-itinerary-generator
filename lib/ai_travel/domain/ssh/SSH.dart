@@ -137,17 +137,13 @@ class SSH {
   <Document>
     <name>About Data</name>
     <ScreenOverlay>
-      <name>$placeName</name>
       <description><![CDATA[
-        <div>
-          <table border="0" style="font-size:16px; width:400; height: auto;">
-            <tr>
-              <td><img src="data:image/jpeg;base64,${await getBase64Image(textQuery)}" alt="Placeholder Image" width="200" height="200"/></td>
-            </tr>
-            <tr>
-              <td>$data</td>
-            </tr>
-          </table>
+        <div style="font-size:32px; text-align: center;">
+          <div style="font-weight: bold; margin-bottom: 10px;">$placeName</div>
+          <div style="width: 100%; text-align: center;">
+            <img src="data:image/jpeg;base64,${await getBase64Image(textQuery)}" alt="Placeholder Image" style="width: 100%; height: auto;"/>
+          </div>
+          <div style="margin-top: 10px;">$data</div>
         </div>
       ]]></description>
       <overlayXY x="0" y="1" xunits="fraction" yunits="fraction"/>
@@ -158,7 +154,6 @@ class SSH {
     </ScreenOverlay>
   </Document>
 </kml>''';
-
     try {
       String escapedKML = openLogoKML.replaceAll("'", "'\\''");
       await _client?.execute("echo '$escapedKML' > /var/www/html/kml/slave_${ref.read(rightmostRigProvider)}.kml");

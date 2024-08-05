@@ -4,7 +4,8 @@ import '../../config/string/String.dart';
 import '../providers/connection_providers.dart';
 class CustomAppBar extends ConsumerStatefulWidget implements PreferredSizeWidget{
   final isHomePage;
-  const CustomAppBar({Key? key, this.isHomePage = false}) : super(key: key);
+  final shouldShowSettingsIcon;
+  const CustomAppBar({Key? key, this.isHomePage = false, this.shouldShowSettingsIcon = true}) : super(key: key);
   @override
   _CustomAppBarState createState() => _CustomAppBarState();
 
@@ -56,12 +57,12 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    height: 40,
                     child: Center(
                       child: Image.asset(
                         'assets/images/lg_logos/line_4/groq_tm.png',
-                        width: 40,
-                        height: 40,
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
@@ -73,12 +74,6 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
       actions: widget.isHomePage
           ? [
         IconButton(
-          icon: const Icon(Icons.search, color: Colors.white),
-          onPressed: () {
-            // Add search functionality here
-          },
-        ),
-        IconButton(
           icon: const Icon(Icons.settings, color: Colors.white),
           onPressed: () {
             Navigator.pushNamed(context, '/settings');
@@ -86,12 +81,12 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
         ),
       ]
           : [
-        IconButton(
+        widget.shouldShowSettingsIcon ? IconButton(
           icon: const Icon(Icons.settings, color: Colors.white),
           onPressed: () {
             Navigator.pushNamed(context, '/settings');
           },
-        ),
+        ): Container(),
       ],
     );
   }

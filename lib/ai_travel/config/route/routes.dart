@@ -66,3 +66,22 @@ class FadeRoute extends PageRouteBuilder {
     },
   );
 }
+
+class SlidingPageRoute extends PageRouteBuilder {
+  final Widget page;
+  SlidingPageRoute({required this.page})
+      : super(
+    pageBuilder: (context, animation, secondaryAnimation) => page,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(1.0, 0.0); // Start off-screen to the right
+      const end = Offset.zero; // End at the normal position
+      const curve = Curves.easeInOut;
+      var tween = Tween(begin: begin, end: end);
+      var offsetAnimation = animation.drive(tween.chain(CurveTween(curve: curve)));
+
+      return SlideTransition(position: offsetAnimation, child: child);
+    },
+  );
+}
+
+
