@@ -8,6 +8,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/data/model/TravelDestinations.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/providers/connection_providers.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/use_case/api_use_case.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/use_case/get_model_use_case.dart';
@@ -41,6 +42,7 @@ class _AddCityState extends ConsumerState<AddCity> {
   late  TextEditingController _textEditingController = TextEditingController();
   late Place place = Place(name: "", location: [], description: "", address: '', place: '');
   late Places places = Places(name: [], description: [], address: [], title: "");
+ TravelDestinations travelDestinations = TravelDestinations(title: "", Dest: []);
   var isLoading = false;
   SpeechToText _speechToText = SpeechToText();
   @override
@@ -78,8 +80,10 @@ class _AddCityState extends ConsumerState<AddCity> {
       isLoading = true;
       isContentLoaded = false;
       places = Places(name: [], description: [], address: [], title: "");
+      travelDestinations = TravelDestinations(title: "", Dest: []);
     });
     places = await getResponses(poi);
+    travelDestinations = await getTravelDestinations(poi);
     setState(() {
       isLoading = false;
       if (places.name!.isNotEmpty) {
@@ -92,10 +96,11 @@ class _AddCityState extends ConsumerState<AddCity> {
       }
     });
     print("this is the state of $isContentLoaded ${places.title?.length}");
+    print("this is the travelState of $isContentLoaded ${travelDestinations.title}${travelDestinations.Dest.length}");
     if (isContentLoaded) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => GeneratedSubPoiPage(places: places)),
+        MaterialPageRoute(builder: (context) => GeneratedSubPoiPage(places: places,travelDestinations: travelDestinations,)),
       );
     }
   }
@@ -110,6 +115,18 @@ class _AddCityState extends ConsumerState<AddCity> {
       return Places(name: [], description: [], address: [], title: "");
     }
   }
+
+  Future<TravelDestinations> getTravelDestinations(String poi) async {
+    var model = ref.watch(currentAiModelSelected);
+    try {
+      final useCase = sl.get<GetPlaceDetailUseCase>(); // Inject with GetIt
+      return await useCase.getTravelDestinations(poi,model);
+    } catch (e) {
+      print(e);
+      return TravelDestinations(title: "", Dest: []);
+    }
+  }
+
 
   void _showErrorDialog() {
     showDialog(

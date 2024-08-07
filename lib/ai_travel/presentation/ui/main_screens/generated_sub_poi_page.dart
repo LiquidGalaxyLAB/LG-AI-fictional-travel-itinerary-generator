@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/route/routes.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/data/model/TravelDestinations.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/main_screens/google_map/google_map_subPoi.dart';
 
 import '../../../config/string/String.dart';
@@ -17,7 +18,8 @@ import '../../widgets/destination_card.dart';
 import 'home_page.dart';
 class GeneratedSubPoiPage extends ConsumerStatefulWidget {
   final Places places;
-  const GeneratedSubPoiPage({super.key, required this.places});
+  final TravelDestinations travelDestinations;
+  const GeneratedSubPoiPage({super.key, required this.places , required this.travelDestinations}) ;
 
 
   @override
@@ -27,7 +29,6 @@ class GeneratedSubPoiPage extends ConsumerStatefulWidget {
 class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
   @override
   void initState() {
-    print('Places: ${widget.places.name}');
     super.initState();
   }
 
@@ -80,7 +81,7 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  widget.places.title!,
+                                  widget.travelDestinations.title,
                                   // Replace with your text
                                   style: const TextStyle(
                                     fontSize: 32.0,
@@ -93,11 +94,11 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
                                   child: SingleChildScrollView(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: widget.places.description!.map((description) {
+                                      children: widget.travelDestinations.Dest!.map((description) {
                                         return Padding(
                                           padding: const EdgeInsets.symmetric(vertical: 5.0),
                                           child: Text(
-                                            description,
+                                            description.description,
                                             style: TextStyle(
                                               fontSize: 18.0,
                                               fontWeight: FontWeight.normal,
@@ -115,7 +116,7 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
                                     onPressed: () {
                                       Navigator.push(
                                         context,
-                                        SlidingPageRoute(page: GoogleMapScreen(place: widget.places)),
+                                        SlidingPageRoute(page: GoogleMapScreen(destinations: widget.travelDestinations.Dest,)),
                                       ).then((_) {
                                         Navigator.pushAndRemoveUntil(
                                           context,

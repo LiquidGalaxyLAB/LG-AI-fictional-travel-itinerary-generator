@@ -1,5 +1,6 @@
 import '../../../data/model/GroqModel.dart';
 import '../../../data/model/MultiPlaceModel.dart';
+import '../../../data/model/TravelDestinations.dart';
 import '../../../domain/repository/groq/ApiRepository.dart';
 
 class GetPlaceDetailUseCase {
@@ -12,5 +13,9 @@ class GetPlaceDetailUseCase {
 
   Future<Places> getPlaces(String city,String model) async {
     return await repository.getPlacesDetails(city,model);
+  }
+
+  Future<TravelDestinations> getTravelDestinations(String city, String model) async {
+    return await repository.getTravelDestinations(city,model);
   }
 }

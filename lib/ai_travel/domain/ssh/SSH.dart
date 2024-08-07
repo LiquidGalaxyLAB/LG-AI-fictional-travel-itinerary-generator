@@ -1,10 +1,12 @@
 
+import 'dart:io';
 import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../core/kml/KmlMaker.dart';
 import '../../core/kml/LookAt.dart';
@@ -71,6 +73,52 @@ class SSH {
     }
   }
 
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return directory.path;
+  }
+
+  buildOrbit(String content) async {
+    try {
+      String localPath = await _localPath;
+      String filePath = '$localPath/Orbit.kml';
+      File localFile = File(filePath);
+      await localFile.writeAsString(content);
+      print('File written to $filePath');
+
+      final client = ref.read(sshClientProvider);
+      if (client == null) {
+        throw Exception('SSH client is not initialized');
+      }
+      final sftp = await client.sftp();
+      if (sftp == null) {
+        throw Exception('Failed to initialize SFTP client');
+      }
+
+      final file = await sftp.open(
+        filePath,
+        mode: SftpFileOpenMode.truncate | SftpFileOpenMode.write,
+      );
+
+      await file.write(File('/var/www/html/Orbit.kml').openRead().cast()).done;
+      print('done');
+
+      print('File uploaded successfully to /var/www/html/Orbit.kml');
+
+      // Execute command on the remote server
+      var result = await client.execute(
+        "echo '\nhttp://lg1:81/Orbit.kml' >> /var/www/html/kmls.txt",
+      );
+      return result;
+    } catch (e) {
+      print('Error occurred: $e');
+      return Future.error(e);
+    }
+  }
+
+
+
   Future<String> renderInSlave(context, int slaveNo, String kml) async {
     try {
       await ref
@@ -104,7 +152,7 @@ class SSH {
 
   showSplashLogo() async{
     await ref.read(sshClientProvider)?.execute(
-        "echo '${KMLMakers.screenOverlayImage(ImageConst.splashOnline, Const.splashAspectRatio)}' > /var/www/html/kml/slave_${ref.read(leftmostRigProvider)}.kml");
+        "echo '${KMLMakers.screenOverlayImage(ImageConst.splashOnline2, Const.splashAspectRatio)}' > /var/www/html/kml/slave_${ref.read(leftmostRigProvider)}.kml");
   }
 
 

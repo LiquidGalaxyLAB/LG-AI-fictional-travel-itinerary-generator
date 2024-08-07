@@ -28,6 +28,7 @@ StateProvider<String> lastBalloonProvider = StateProvider((ref) => BalloonMakers
 StateProvider<CameraPosition?> lastGMapPositionProvider =
 StateProvider((ref) => null);
 StateProvider<bool> isConnectedToLGProvider = StateProvider((ref) => false);
+StateProvider<bool> isOrbitPlaying = StateProvider((ref) => false);
 
 setRigs(int rig, WidgetRef ref) {
   ref.read(rigsProvider.notifier).state = rig;

@@ -1,7 +1,72 @@
+
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import '../model/SubPoiInfoModal.dart';
+
+import 'package:dio/dio.dart';
+
+class MapService {
+  static const String _baseUrl = "https://places.googleapis.com/v1/places:searchText";
+  static const String _apiKey = "AIzaSyDZ9xpCY1-z6OGRLKBaCZ37RyJj9A2x8TI";
+
+  final Dio _dio = Dio();
+
+  Future<SubPoiInfoModal?> getSubPoiPlaceInfo(String query) async {
+    print('Making API request for place info $query');
+    try {
+      final response = await _dio.post(
+        _baseUrl,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': _apiKey,
+            'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.googleMapsUri,places.goodForChildren,places.accessibilityOptions,places.userRatingCount,places.rating,places.websiteUri,places.viewport,places.addressComponents,places.utcOffsetMinutes,places.reviews',
+          },
+        ),
+        data: {
+          'textQuery': query,
+        },
+      );
+      if (response.statusCode == 200) {
+        print(response.data);
+        return SubPoiInfoModal.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load place info');
+      }
+    } on DioException catch (e) {
+      print('Error making API request: ${e.message}');
+    } catch(e) {
+      print('Error making API request: $e');
+    }
+    return null;
+  }
+
+  Future<dynamic> getSubPoiPlaceInfotest(String query) async {
+    print('Making API request for place info $query');
+
+      final response = await _dio.post(
+        _baseUrl,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': _apiKey,
+            'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.googleMapsUri,places.goodForChildren,places.accessibilityOptions,places.userRatingCount,places.rating,places.websiteUri,places.viewport,places.addressComponents,places.utcOffsetMinutes',
+          },
+        ),
+        data: {
+          'textQuery': query,
+        },
+      );
+      print(response.data);
+      return response.data;
+  }
+}
+
+
 
 Future<List<String>> searchPlacesByText({
   required String textQuery,
@@ -35,6 +100,50 @@ Future<List<String>> searchPlacesByText({
         }
       }
       return photoReferences;
+    } else {
+      throw Exception('Unexpected data format: places is not a list');
+    }
+  } else {
+    throw Exception('Failed to search places: ${response.statusCode}');
+  }
+}
+
+
+Future<List<Map<String, double>>> getLocations({
+  required String textQuery,
+  required String apiKey,
+}) async {
+  final String url = 'https://places.googleapis.com/v1/places:searchText';
+  final response = await http.post(
+    Uri.parse(url),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': apiKey,
+      'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.photos,places.location',
+    },
+    body: jsonEncode({'textQuery': textQuery}),
+  );
+
+  if (response.statusCode == 200) {
+    final Map<String, dynamic> data = jsonDecode(response.body);
+
+    // Debugging print
+    print('API Response: $data');
+
+    // Check if 'places' is present and is a list
+    final places = data['places'];
+    if (places is List) {
+      List<Map<String, double>> locations = [];
+      for (var place in places) {
+        if (place['location'] != null) {
+          final location = place['location'];
+          locations.add({
+            'latitude': location['latitude'],
+            'longitude': location['longitude']
+          });
+        }
+      }
+      return locations;
     } else {
       throw Exception('Unexpected data format: places is not a list');
     }
@@ -84,3 +193,6 @@ Future<String> loadNearbyPlacesImages({
     return 'https://drive.google.com/file/d/1z7Qu17dyVYW84YLad4wL7qkZ9RdfKpwy/preview';
   }
 }
+
+
+
