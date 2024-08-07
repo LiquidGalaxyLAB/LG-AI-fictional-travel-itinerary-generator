@@ -10,12 +10,15 @@ import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/core/utils/extensions.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/GroqModel.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/data/model/TravelDestinations.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/WeatherModal.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/service/mapService.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/providers/connection_providers.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/use_case/MapUseCase.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
 import 'package:geocoding/geocoding.dart';
+import '../../../../core/kml/LookAt.dart';
+import '../../../../core/kml/orbit.dart';
 import '../../../../data/model/SubPoiInfoModal.dart';
 import '../../../../core/utils/constants.dart';
 import '../../../../data/model/TimeZoneModal.dart';
@@ -26,9 +29,9 @@ import '../../use_case/MiscUseCase.dart';
 import '../../use_case/api_use_case.dart';
 
 class GoogleMapScreen extends ConsumerStatefulWidget {
-  final Places place;
-
-  const GoogleMapScreen({super.key, required this.place});
+  //final Places destinations;
+  final List<Destinations> destinations;
+  const GoogleMapScreen({super.key, required this.destinations});
 
   @override
   _GoogleMapScreenState createState() => _GoogleMapScreenState();
@@ -42,6 +45,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
   SubPoiInfoModal? subPoiInfo;
   WeatherModal? subPoiTemp;
   TimeZoneModal? subPoiTimeZone;
+  List<Location?> _cords = [];
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(0, 0),
     zoom: 0,
@@ -56,12 +60,21 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
     super.initState();
     Future.delayed(Duration(seconds: 2), () {
       _getSubPoiInfo();
+      _showChatResponse(widget.destinations);
+      print("currentIndex ${_currentPlaceIndex}");
     });
+  }
 
+  Future<void> _fetchCoordinates() async {
+    var newLatLng = await locationFromAddress("${widget.destinations[_currentPlaceIndex].name}, ${widget.destinations[_currentPlaceIndex].city}");
+    setState(() {
+      _cords = newLatLng;
+    });
   }
 
   void _getSubPoiInfo() async {
-    final newSubPoiInfo = await getSubPoiInfo("${widget.place.name![_currentPlaceIndex]}, ${widget.place.address![_currentPlaceIndex]}");
+    final newSubPoiInfo = await getSubPoiInfo(
+        "${widget.destinations[_currentPlaceIndex].name!}, ${widget.destinations[_currentPlaceIndex].city!}");
     setState(() {
       subPoiInfo = newSubPoiInfo;
       double? latitude = subPoiInfo?.places?[0].viewport?.low?.latitude;
@@ -78,14 +91,14 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
     changeMapPosition();
   }
 
-  String getWeatherForecastLink(String id){
+  String getWeatherForecastLink(String id) {
     return "https://openweathermap.org/img/wn/${id}@2x.png";
   }
 
-  void _getTemp() async{
+  void _getTemp() async {
     double? latitude = subPoiInfo?.places?[0].viewport?.low?.latitude;
     double? longitude = subPoiInfo?.places?[0].viewport?.low?.longitude;
-    final newSubPoiTemp = await getWeatherInfo(latitude!,longitude!);
+    final newSubPoiTemp = await getWeatherInfo(latitude!, longitude!);
     final newSubPoiTimeZone = await getTimeZone(latitude, longitude);
     if (latitude != null && longitude != null) {
       setState(() {
@@ -97,9 +110,11 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
       print('Latitude or Longitude is null');
     }
   }
+
   double kelvinToCelsius(double kelvin) {
     return kelvin - 273.15;
   }
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -108,52 +123,36 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
 
   void _goToTheNextDescription() async {
     _getSubPoiInfo();
-    if (widget.place.description != null &&
-        widget.place.description!.isNotEmpty) {
-      setState(() {
-        String firstDescription = widget.place.description!.removeAt(0);
-        String firstName = widget.place.name!.removeAt(0);
-        String firstAddress = widget.place.address!.removeAt(0);
-        widget.place.description!.add(firstDescription);
-        widget.place.name!.add(firstName);
-        widget.place.address!.add(firstAddress);
-      });
-    }
     changeMapPosition();
     setState(() {
-      if (_currentPlaceIndex < (widget.place.description?.length ?? 0) - 1) {
+      if (_currentPlaceIndex < (widget.destinations.length ?? 0) - 1) {
         _currentPlaceIndex++;
       } else {
         _currentPlaceIndex = 0;
       }
+      _showChatResponse(widget.destinations);
     });
   }
 
   void _goToThePreviousDescription() async {
     _getSubPoiInfo();
-    setState(() {
-      String lastDescription = widget.place.description!.removeLast();
-      String lastName = widget.place.name!.removeLast();
-      String lastAddress = widget.place.address!.removeLast();
-      widget.place.description!.insert(0, lastDescription);
-      widget.place.name!.insert(0, lastName);
-      widget.place.address!.insert(0, lastAddress);
-    });
     changeMapPosition();
+
     setState(() {
       if (_currentPlaceIndex > 0) {
         _currentPlaceIndex--;
       }
     });
+    _showChatResponse(widget.destinations);
   }
 
   void changeMapPosition() async {
     final GoogleMapController controller = await _controller.future;
-    if (widget.place.description != null &&
-        widget.place.description!.isNotEmpty) {
+    if (widget.destinations!.isNotEmpty) {
+      print("thisIsPlace: ${widget.destinations[_currentPlaceIndex].name!}, ${widget.destinations[_currentPlaceIndex].address!}");
       LatLng target = await _getLatLngForPlace(
-          widget.place.name![_currentPlaceIndex],
-          widget.place.address![_currentPlaceIndex]);
+          widget.destinations[_currentPlaceIndex].name!,
+          widget.destinations[_currentPlaceIndex].city!);
       controller.animateCamera(CameraUpdate.newCameraPosition(
         CameraPosition(
           target: target,
@@ -177,20 +176,20 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
   }
 
   void _startTour() {
-    _showChatResponse(widget.place);
+    _showChatResponse(widget.destinations);
     _timer = Timer.periodic(Duration(seconds: 12), (Timer timer) async {
       final GoogleMapController controller = await _controller.future;
-      if (_currentPlaceIndex >= widget.place.description!.length) {
+      if (_currentPlaceIndex >= widget.destinations.length) {
         _currentPlaceIndex = 0;
         setState(() {
           isPlaying = false;
         });
         timer.cancel();
       } else {
-        /*_loadChatResponses(widget.place);*/
+        /*_loadChatResponses(widget.destinations);*/
         LatLng target = await _getLatLngForPlace(
-            widget.place.name![_currentPlaceIndex],
-            widget.place.address![_currentPlaceIndex]);
+            widget.destinations[_currentPlaceIndex].name!,
+            widget.destinations[_currentPlaceIndex].address!);
         _goToTheNextDescription();
         controller.animateCamera(CameraUpdate.newCameraPosition(
           CameraPosition(
@@ -205,9 +204,9 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
     });
   }
 
-  Future<LatLng> _getLatLngForPlace(String place, String address) async {
-    print("thisIsPlace: $place $address");
-    List<Location> latlng = await locationFromAddress("$place $address");
+  Future<LatLng> _getLatLngForPlace(String destinations, String address) async {
+    print("thisIsPlace: $destinations $address");
+    List<Location> latlng = await locationFromAddress("$destinations $address");
     if (latlng.isNotEmpty) {
       return LatLng(latlng[0].latitude!, latlng[0].longitude!);
     }
@@ -225,7 +224,8 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
     }
   }
 
-  Future<WeatherModal?> getWeatherInfo(double latitude, double longitude) async {
+  Future<WeatherModal?> getWeatherInfo(
+      double latitude, double longitude) async {
     try {
       final useCase = sl.get<MiscUseCase>();
       return await useCase.getWeatherInfo(latitude, longitude);
@@ -245,11 +245,12 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth * 0.4; // Adjusted for 4:6 ratio
+    double latitude = subPoiInfo?.places?[0].viewport?.low?.latitude ?? 0;
+    double longitude = subPoiInfo?.places?[0].viewport?.low?.longitude ?? 0;
     final isLoading = subPoiInfo == null ||
         subPoiInfo!.places == null ||
         subPoiInfo!.places!.isEmpty ||
@@ -278,7 +279,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                               children: [
                                 Flexible(
                                   child: Text(
-                                    widget.place.name![_currentPlaceIndex],
+                                    widget.destinations[_currentPlaceIndex].name!,
                                     style: TextStyle(
                                       fontSize: 34,
                                       fontWeight: FontWeight.bold,
@@ -294,7 +295,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                               children: [
                                 Flexible(
                                   child: Text(
-                                    '${widget.place.address![_currentPlaceIndex]}',
+                                    '${widget.destinations[_currentPlaceIndex].address!}',
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.normal,
@@ -306,41 +307,47 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                               ],
                             ),
                             SizedBox(height: 28),
-                        isLoading
-                            ? Center(child: CircularProgressIndicator())
-                            : Column(
-                          children: [
-                            Row(
-                              children: [
-                                _buildInfoItem(
-                                  "${subPoiTemp?.sys?.country}",
-                                  Icon(Iconsax.direct_up, color: Colors.white),
-                                ),
-                                SizedBox(width: 70),
-                                _buildTempInfoItem(
-                                  '${kelvinToCelsius(subPoiTemp?.main?.temp ?? 0).toStringAsFixed(2)}°C',
-                                  getWeatherForecastLink(subPoiTemp?.weather?[0].icon ?? "01d"),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                _buildInfoItem(
-                                  "${subPoiInfo!.places![0].rating}",
-                                  Icon(Icons.star, color: Colors.grey,),
-                                ),
-
-                              ],
-                            ),
-                            SizedBox(height: 10),
-                            _buildInfoItem(
-                              "${subPoiTimeZone?.timeZone}",
-                              Icon(Iconsax.global, color: Colors.white),
-                            ),
-                            SizedBox(height: 10),
-                            SizedBox(height: 28),
-                          ],
-                        ),
+                            isLoading
+                                ? Center(child: CircularProgressIndicator())
+                                : Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          _buildInfoItem(
+                                            "${subPoiTemp?.sys?.country}",
+                                            Icon(Iconsax.direct_up,
+                                                color: Colors.white),
+                                          ),
+                                          SizedBox(width: 70),
+                                          _buildTempInfoItem(
+                                            '${kelvinToCelsius(subPoiTemp?.main?.temp ?? 0).toStringAsFixed(2)}°C',
+                                            getWeatherForecastLink(
+                                                subPoiTemp?.weather?[0].icon ??
+                                                    "01d"),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          _buildInfoItem(
+                                            "${subPoiInfo!.places![0].rating}",
+                                            Icon(
+                                              Icons.star,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 10),
+                                      _buildInfoItem(
+                                        "${subPoiTimeZone?.timeZone}",
+                                        Icon(Iconsax.global,
+                                            color: Colors.white),
+                                      ),
+                                      SizedBox(height: 10),
+                                      SizedBox(height: 28),
+                                    ],
+                                  ),
                             Column(
                               children: [
                                 Row(
@@ -357,7 +364,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                                 ),
                                 Divider(),
                                 Text(
-                                  widget.place.description![_currentPlaceIndex],
+                                  widget.destinations[_currentPlaceIndex].description!,
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.normal,
@@ -378,143 +385,191 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                                 ),
                                 Divider(),
                                 const SizedBox(height: 10),
-                        _isLoading
-                            ? Center(child: CircularProgressIndicator())
-                            : ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: (2 / 2).ceil(),
-                          itemBuilder: (context, index) {
-                            // Fetch the review or use default values if null
-                            var review = subPoiInfo?.places?.firstOrNull?.reviews?.elementAtOrNull(index);
-                            var author = review?.authorAttribution?.displayName ?? "Unable to load";
-                            var rating = review?.rating?.toString() ?? "0";
-                            var reviewText = review?.text?.text ?? "Unable to load";
-                            var secondReview = subPoiInfo?.places?.firstOrNull?.reviews?.elementAtOrNull(index + 1);
-                            var secondAuthor = secondReview?.authorAttribution?.displayName ?? "Unable to load";
-                            var secondRating = secondReview?.rating?.toString() ?? "0";
-                            var secondReviewText = secondReview?.text?.text ?? "Unable to load";
+                                _isLoading
+                                    ? Center(child: CircularProgressIndicator())
+                                    : ListView.builder(
+                                        shrinkWrap: true,
+                                        physics: NeverScrollableScrollPhysics(),
+                                        itemCount: (2 / 2).ceil(),
+                                        itemBuilder: (context, index) {
+                                          // Fetch the review or use default values if null
+                                          var review = subPoiInfo
+                                              ?.places?.firstOrNull?.reviews
+                                              ?.elementAtOrNull(index);
+                                          var author = review?.authorAttribution
+                                                  ?.displayName ??
+                                              "Unable to load";
+                                          var rating =
+                                              review?.rating?.toString() ?? "0";
+                                          var reviewText = review?.text?.text ??
+                                              "Unable to load";
+                                          var secondReview = subPoiInfo
+                                              ?.places?.firstOrNull?.reviews
+                                              ?.elementAtOrNull(index + 1);
+                                          var secondAuthor = secondReview
+                                                  ?.authorAttribution
+                                                  ?.displayName ??
+                                              "Unable to load";
+                                          var secondRating = secondReview
+                                                  ?.rating
+                                                  ?.toString() ??
+                                              "0";
+                                          var secondReviewText =
+                                              secondReview?.text?.text ??
+                                                  "Unable to load";
 
-
-                            return Row(
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    margin: const EdgeInsets.all(8.0),
-                                    padding: const EdgeInsets.all(12.0),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.backgroundColor,
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey.withOpacity(0.5),
-                                          spreadRadius: 2,
-                                          blurRadius: 5,
-                                          offset: Offset(0, 3),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              author,
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Text(
-                                              '$rating',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 2),
-                                            Icon(
-                                              Icons.star,
-                                              color: Colors.yellowAccent.shade100,
-                                              size: 20,
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 8),
-                                        Text(
-                                          reviewText,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                          ),
-                                          maxLines: 6,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                if ((index * 2 + 1) < 2)
-                                  Expanded(
-                                    child: Container(
-                                      margin: const EdgeInsets.all(8.0),
-                                      padding: const EdgeInsets.all(12.0),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.backgroundColor,
-                                        borderRadius: BorderRadius.circular(10.0),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(0.5),
-                                            spreadRadius: 2,
-                                            blurRadius: 5,
-                                            offset: Offset(0, 3),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
+                                          return Row(
                                             children: [
-                                              Text(
-                                                secondAuthor,
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
+                                              Expanded(
+                                                child: Container(
+                                                  margin:
+                                                      const EdgeInsets.all(8.0),
+                                                  padding: const EdgeInsets.all(
+                                                      12.0),
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors
+                                                        .backgroundColor,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10.0),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.grey
+                                                            .withOpacity(0.5),
+                                                        spreadRadius: 2,
+                                                        blurRadius: 5,
+                                                        offset: Offset(0, 3),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            author,
+                                                            style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 6),
+                                                          Text(
+                                                            '$rating',
+                                                            style: TextStyle(
+                                                              fontSize: 16,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 2),
+                                                          Icon(
+                                                            Icons.star,
+                                                            color: Colors
+                                                                .yellowAccent
+                                                                .shade100,
+                                                            size: 20,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      SizedBox(height: 8),
+                                                      Text(
+                                                        reviewText,
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                        ),
+                                                        maxLines: 6,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
-                                              const SizedBox(width: 6),
-                                              Text(
-                                                '$secondRating',
-                                                style: TextStyle(
-                                                  fontSize: 16,
+                                              if ((index * 2 + 1) < 2)
+                                                Expanded(
+                                                  child: Container(
+                                                    margin:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            12.0),
+                                                    decoration: BoxDecoration(
+                                                      color: AppColors
+                                                          .backgroundColor,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.grey
+                                                              .withOpacity(0.5),
+                                                          spreadRadius: 2,
+                                                          blurRadius: 5,
+                                                          offset: Offset(0, 3),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                              secondAuthor,
+                                                              style: TextStyle(
+                                                                fontSize: 18,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                            const SizedBox(
+                                                                width: 6),
+                                                            Text(
+                                                              '$secondRating',
+                                                              style: TextStyle(
+                                                                fontSize: 16,
+                                                              ),
+                                                            ),
+                                                            const SizedBox(
+                                                                width: 2),
+                                                            Icon(
+                                                              Icons.star,
+                                                              color: Colors
+                                                                  .yellowAccent
+                                                                  .shade100,
+                                                              size: 20,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        SizedBox(height: 8),
+                                                        Text(
+                                                          secondReviewText,
+                                                          // You may want to use another review for the second container
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                          ),
+                                                          maxLines: 6,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                              const SizedBox(width: 2),
-                                              Icon(
-                                                Icons.star,
-                                                color: Colors.yellowAccent.shade100,
-                                                size: 20,
-                                              ),
                                             ],
-                                          ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            secondReviewText, // You may want to use another review for the second container
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                            ),
-                                            maxLines: 6,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
+                                          );
+                                        },
                                       ),
-                                    ),
-                                  ),
-                              ],
-                            );
-                          },
-                        ),
                               ],
                             )
                           ],
@@ -558,20 +613,20 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                           padding:
                               EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                           child: Text(
-                            '${_currentPlaceIndex + 1}/${widget.place.description?.length}',
+                            '${_currentPlaceIndex + 1}/${widget.destinations.length}',
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
                         const SizedBox(width: 20),
                         GestureDetector(
                           onTap: _currentPlaceIndex <
-                                  (widget.place.description?.length ?? 0) - 1
+                                  (widget.destinations.length ?? 0) - 1
                               ? _goToTheNextDescription
                               : null,
                           child: Icon(
                             Icons.skip_next,
                             color: _currentPlaceIndex <
-                                    (widget.place.description?.length ?? 0) - 1
+                                    (widget.destinations.length ?? 0) - 1
                                 ? Colors.white
                                 : Colors.white.withOpacity(0.5),
                             size: 40,
@@ -640,19 +695,34 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                const SizedBox(height: 10),
+                                /*const SizedBox(height: 10),
                                 _roundedBtn("Start Auto Touring", () {},
-                                    Icon(Iconsax.play, color: Colors.white)),
+                                    Icon(Iconsax.play, color: Colors.white)),*/
                                 const SizedBox(height: 24),
-                                Opacity(
-                                  opacity:
-                                      ref.watch(connectedProvider) ? 1.0 : 0.6,
-                                  child: _roundedBtn(
-                                    "Play Orbit",
-                                    () {}, //define the functionaslity
-                                    Icon(Iconsax.play, color: Colors.white),
-                                  ),
-                                ),
+                              Opacity(
+                                opacity: ref.watch(connectedProvider) ? 1.0 : 0.6,
+                                child: _cords != null
+                                    ? ref.watch(isOrbitPlaying)
+                                    ? _roundedBtn(
+                                  "Stop Orbit",
+                                      () {
+                                    ref.read(isOrbitPlaying.notifier).state = false;
+                                    SSH(ref: ref).stopOrbit(context);
+                                    // _flyTo(_cords![0]!.latitude, _cords![0]!.longitude, 100, 60, 0);
+
+                                  },
+                                  Icon(Iconsax.stop, color: Colors.white),
+                                )
+                                    : _roundedBtn(
+                                  "Play Orbit",
+                                      () {
+                                    ref.read(isOrbitPlaying.notifier).state = true;
+                                    _startOrbit(_cords![0]!.latitude, _cords![0]!.longitude, 200, 60, 0);
+                                  },
+                                  Icon(Iconsax.play, color: Colors.white),
+                                )
+                                    : CircularProgressIndicator(), // Show a loading indicator while fetching coordinates
+                              ),
                                 ref.watch(connectedProvider)
                                     ? const SizedBox
                                         .shrink() // This will render an empty widget when connected
@@ -700,22 +770,22 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
   Widget _buildInfoItem(String? title, Icon icon) {
     return title == null || title.isEmpty || title == "null"
         ? Container(
-      width: 24, // Adjust as needed
-      height: 24, // Adjust as needed
-      child: Center(child: CircularProgressIndicator()),
-    )
+            width: 24, // Adjust as needed
+            height: 24, // Adjust as needed
+            child: Center(child: CircularProgressIndicator()),
+          )
         : Row(
-      children: [
-        icon,
-        SizedBox(width: 10),
-        Text(
-          title,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
+            children: [
+              icon,
+              SizedBox(width: 10),
+              Text(
+                title,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          );
   }
 
   Widget _buildTempInfoItem(String temperature, String iconUrl) {
@@ -725,20 +795,23 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
           iconUrl,
           width: 48.0,
           height: 48.0,
-          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+          loadingBuilder: (BuildContext context, Widget child,
+              ImageChunkEvent? loadingProgress) {
             if (loadingProgress == null) {
               return child;
             } else {
               return Center(
                 child: CircularProgressIndicator(
                   value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          (loadingProgress.expectedTotalBytes ?? 1)
                       : null,
                 ),
               );
             }
           },
-          errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+          errorBuilder:
+              (BuildContext context, Object error, StackTrace? stackTrace) {
             return Icon(Icons.error, color: Colors.grey);
           },
         ),
@@ -789,56 +862,90 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
 
   Future<void> _flyTo(double latitude, double longitude, double zoom,
       double tilt, double bearing) async {
-    SSHSession? session = await SSH(ref: ref)
+    await SSH(ref: ref)
         .flyToOrbit(context, latitude, longitude, zoom, tilt, bearing);
-    if (session != null) {
-      print("flyTo ${session.stdout}");
-    }
+
   }
 
-  //define startOrbit
+  playOrbit(double longvalue, double latvalue) async {
+    await SSH(ref:ref)
+        .buildOrbit(Orbit.buildOrbit(Orbit.generateOrbitTag(LookAt(
+        double.parse((longvalue).toStringAsFixed(2)),
+        double.parse((latvalue).toStringAsFixed(2)),
+        "30492.665945696469",
+        "0",
+        "0"))))
+        .then((value) async {
+      await SSH(ref: ref).startOrbit(context);
+    });
+  }
+
+
   Future<void> _startOrbit(double latitude, double longitude, double zoom,
       double tilt, double bearing) async {
     await Future.delayed(const Duration(milliseconds: 1000));
+
+    final startTime = DateTime.now();
+
     for (int i = 0; i <= 360; i += 10) {
-      if (!mounted) {
+      if (!mounted || ref.read(isOrbitPlaying) == false) {
+        ref.read(isOrbitPlaying.notifier).state = false;
         return;
       }
-      SSH(ref: ref).flyToOrbit(context, latitude, longitude,
-          Const.orbitZoomScale.zoomLG, 60, i.toDouble());
+
+      if (DateTime.now().difference(startTime).inSeconds > 20) {
+        ref.read(isOrbitPlaying.notifier).state = false;
+        return;
+      }
+
+      ref.read(isOrbitPlaying.notifier).state = true;
+      SSH(ref: ref).flyToOrbit(context, latitude, longitude, zoom, 60, i.toDouble());
       await Future.delayed(const Duration(milliseconds: 1000));
     }
   }
 
-  void _showChatResponse(Places places) async {
+
+  void _showChatResponse(List<Destinations> places) async {
     List<Location> latLng = [];
-    List<Map<String, double>> cords = [];
-    for (int i = 0; i < places.name!.length; i++) {
-      latLng = await locationFromAddress(
-          "${places.name![i]}, ${places.address![i]}");
+    _fetchCoordinates();
+    var currentPlace = places[_currentPlaceIndex];
+    print("ChatResponse: ${_currentPlaceIndex}. ${currentPlace.name}, ${currentPlace.address}");
+
+    try {
+      var newLatLng = await locationFromAddress("${currentPlace.name}, ${currentPlace.city}");
+      setState(() {
+        latLng = newLatLng;
+      });
+
       if (latLng.isNotEmpty) {
-        print("Lat and Lng ${latLng[0].latitude} ${latLng[0].longitude} ");
+        // Debugging SSH commands
         await SSH(ref: ref).setRefresh(context);
-        /* await SSH(ref: ref).cleanSlaves(context);
-        await SSH(ref: ref).cleanBalloon(context);*/
+        // await SSH(ref: ref).cleanSlaves(context);
+        // await SSH(ref: ref).cleanBalloon(context);
+
+        await _flyTo(latLng[0].latitude, latLng[0].longitude, 200, 60, 0);
+
         await SSH(ref: ref).chatResponseBalloon(
-            places.description![i],
+            currentPlace.description,
             LatLng(latLng[0].latitude, latLng[0].longitude),
-            places.name![i],
-            "${places.name![i]} is a ${places.description![i]}");
-        print(
-            "Showing chat response for ${places.name![i]} at ${places.address![i]}");
-        _flyTo(latLng[0].latitude, latLng[0].longitude, 150, 60, 0);
-        /*_navigate("${latLng[0].latitude}, ${latLng[0].longitude}");*/
+            currentPlace.name,
+            "${currentPlace.name!} is a ${currentPlace.address}"
+        );
       } else {
-        print("No coordinates found for ${places.name![i]}");
+        print("No coordinates found for ${currentPlace.name}");
       }
-      await Future.delayed(const Duration(seconds: 12));
+    } catch (e) {
+      print("Error occurred: $e");
     }
-    cords.clear();
-    /* await SSH(ref: ref).cleanBalloon(context);
-    await SSH(ref: ref).cleanSlaves(context);*/
+
+
+    latLng.clear();
+
+
+    // Debugging SSH commands
     await SSH(ref: ref).setRefresh(context);
+    // await SSH(ref: ref).cleanBalloon(context);
+    // await SSH(ref: ref).cleanSlaves(context);
   }
 }
 

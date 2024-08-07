@@ -8,4 +8,5 @@ class ImageConst{
   static const gdg = "assets/images/lg_logos/line_3/flutter_lleida.png";
   static const parcLleida = "assets/images/lg_logos/line_3/Parc_.png";
   static const splashOnline = 'https://raw.githubusercontent.com/Rohit-554/LaserSlidesFlutter/master/lgAIGroqSplash.png';
+  static const splashOnline2 = 'https://raw.githubusercontent.com/Rohit-554/LaserSlidesFlutter/master/Lg%20logos%20(634%20x%20531%20px).png';
 }
