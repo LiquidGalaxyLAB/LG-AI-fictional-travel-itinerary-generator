@@ -94,31 +94,6 @@ class _LiquidGalaxyManagementState
                       const SizedBox(width: 20),
                       Expanded(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ControlButton(
-                              icon: Icons.refresh,
-                              label: 'Set Refresh',
-                              isPrimary: true,
-                              onPressed: () {
-                                setRefresh();
-                              },
-                            ),
-                            const SizedBox(height: 20),
-                            ControlButton(
-                              icon: Icons.refresh,
-                              label: 'Reset Refresh',
-                              isPrimary: true,
-                              onPressed: () {
-                                resetRefresh();
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: Column(
                           children: [
                             ControlButton(
                               icon: Icons.play_arrow,
