@@ -86,7 +86,7 @@ class _AddCityState extends ConsumerState<AddCity> {
     travelDestinations = await getTravelDestinations(poi);
     setState(() {
       isLoading = false;
-      if (places.name!.isNotEmpty) {
+      if (travelDestinations.Dest.isNotEmpty) {
         isContentLoaded = true;
       } else {
         isContentLoaded = false;
@@ -95,12 +95,10 @@ class _AddCityState extends ConsumerState<AddCity> {
         });
       }
     });
-    print("this is the state of $isContentLoaded ${places.title?.length}");
-    print("this is the travelState of $isContentLoaded ${travelDestinations.title}${travelDestinations.Dest.length}");
-    if (isContentLoaded) {
+    if (isContentLoaded && travelDestinations.Dest.isNotEmpty) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => GeneratedSubPoiPage(places: places,travelDestinations: travelDestinations,)),
+        MaterialPageRoute(builder: (context) => GeneratedSubPoiPage(travelDestinations: travelDestinations)),
       );
     }
   }

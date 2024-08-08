@@ -17,9 +17,9 @@ import '../../widgets/app_bar.dart';
 import '../../widgets/destination_card.dart';
 import 'home_page.dart';
 class GeneratedSubPoiPage extends ConsumerStatefulWidget {
-  final Places places;
+
   final TravelDestinations travelDestinations;
-  const GeneratedSubPoiPage({super.key, required this.places , required this.travelDestinations}) ;
+  const GeneratedSubPoiPage({super.key, required this.travelDestinations}) ;
 
 
   @override
