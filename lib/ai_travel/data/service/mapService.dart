@@ -11,9 +11,9 @@ import 'package:dio/dio.dart';
 
 class MapService {
   static const String _baseUrl = "https://places.googleapis.com/v1/places:searchText";
-  static const String _apiKey = "AIzaSyDZ9xpCY1-z6OGRLKBaCZ37RyJj9A2x8TI";
 
   final Dio _dio = Dio();
+
 
   Future<SubPoiInfoModal?> getSubPoiPlaceInfo(String query) async {
     print('Making API request for place info $query');
@@ -23,7 +23,7 @@ class MapService {
         options: Options(
           headers: {
             'Content-Type': 'application/json',
-            'X-Goog-Api-Key': _apiKey,
+            'X-Goog-Api-Key': await _apiKey(),
             'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.googleMapsUri,places.goodForChildren,places.accessibilityOptions,places.userRatingCount,places.rating,places.websiteUri,places.viewport,places.addressComponents,places.utcOffsetMinutes,places.reviews',
           },
         ),
@@ -53,7 +53,7 @@ class MapService {
         options: Options(
           headers: {
             'Content-Type': 'application/json',
-            'X-Goog-Api-Key': _apiKey,
+            'X-Goog-Api-Key': await _apiKey(),
             'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.googleMapsUri,places.goodForChildren,places.accessibilityOptions,places.userRatingCount,places.rating,places.websiteUri,places.viewport,places.addressComponents,places.utcOffsetMinutes',
           },
         ),
@@ -66,7 +66,13 @@ class MapService {
   }
 }
 
-
+Future<String> _apiKey() async{
+  await dotenv.load(fileName: 'keys.env');
+  String? GMAPSAPI = dotenv.env['GMAPSAPI']; //USING KEYS.ENV FILE FOR STORING THE KEYS
+  String? apiKey = GMAPSAPI ?? 'your-api-key-here';
+  print('API Key: $apiKey');
+  return apiKey;
+}
 
 Future<List<String>> searchPlacesByText({
   required String textQuery,
@@ -77,7 +83,7 @@ Future<List<String>> searchPlacesByText({
     Uri.parse(url),
     headers: {
       'Content-Type': 'application/json',
-      'X-Goog-Api-Key': apiKey,
+      'X-Goog-Api-Key': await _apiKey(),
       'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.photos',
     },
     body: jsonEncode({'textQuery': textQuery}),
@@ -108,56 +114,12 @@ Future<List<String>> searchPlacesByText({
   }
 }
 
-
-Future<List<Map<String, double>>> getLocations({
-  required String textQuery,
-  required String apiKey,
-}) async {
-  final String url = 'https://places.googleapis.com/v1/places:searchText';
-  final response = await http.post(
-    Uri.parse(url),
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.photos,places.location',
-    },
-    body: jsonEncode({'textQuery': textQuery}),
-  );
-
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> data = jsonDecode(response.body);
-
-    // Debugging print
-    print('API Response: $data');
-
-    // Check if 'places' is present and is a list
-    final places = data['places'];
-    if (places is List) {
-      List<Map<String, double>> locations = [];
-      for (var place in places) {
-        if (place['location'] != null) {
-          final location = place['location'];
-          locations.add({
-            'latitude': location['latitude'],
-            'longitude': location['longitude']
-          });
-        }
-      }
-      return locations;
-    } else {
-      throw Exception('Unexpected data format: places is not a list');
-    }
-  } else {
-    throw Exception('Failed to search places: ${response.statusCode}');
-  }
-}
-
 Future<Uint8List> fetchPlaceImage({
   required String photoReference,
   required String apiKey,
 }) async {
   print('Fetching image for photoReference: $photoReference');
-  final String url = 'https://places.googleapis.com/v1/$photoReference/media?maxHeightPx=400&maxWidthPx=400&key=$apiKey';
+  final String url = 'https://places.googleapis.com/v1/$photoReference/media?maxHeightPx=400&maxWidthPx=400&key=${await _apiKey()}';
   final http.Response response = await http.get(Uri.parse(url));
 
   if (response.statusCode == 200) {
