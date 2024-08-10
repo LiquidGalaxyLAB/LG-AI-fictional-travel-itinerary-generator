@@ -34,11 +34,11 @@ class AppRoutes {
       case settingsPage:
         return _fadeRoute(const ConnectionScreen());
       case galaxyManagementPage:
-        return _materialRoute(const LiquidGalaxyManagement());
+        return SlidingPageRoute(page: const LiquidGalaxyManagement());
       case aboutPage:
         return _materialRoute(AboutPage());
       case googleMapPage:
-        return _materialRoute(const GoogleMapsPage());
+        return SlidingPageRoute(page: const GoogleMapsPage());
       /*case '/generatedSubPoiPage':
         return _materialRoute(const GeneratedSubPoiPage());*/
       default:
