@@ -90,9 +90,7 @@ class _AddCityState extends ConsumerState<AddCity> {
         isContentLoaded = true;
       } else {
         isContentLoaded = false;
-        buildShowDialog(context, () {
-
-        });
+        buildShowDialog(context, () {});
       }
     });
     if (isContentLoaded && travelDestinations.Dest.isNotEmpty) {

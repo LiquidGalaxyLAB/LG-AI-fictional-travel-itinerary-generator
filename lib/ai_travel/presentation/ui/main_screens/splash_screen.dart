@@ -43,7 +43,7 @@ class ShowLogos extends StatelessWidget {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
 
-    double scale = isSplashScreen ? 0.8 : 0.4; // Adjust scale based on isSplashScreen
+    double scale = isSplashScreen ? 0.8 : 0.6; // Adjust scale based on isSplashScreen
 
     return SizedBox(
       width: width * scale,
@@ -57,9 +57,9 @@ class ShowLogos extends StatelessWidget {
             if (isSplashScreen) SizedBox(height: 16),
             Center(
               child: Image.asset(
-                "assets/images/lg_logos/lg-ai-fictional-groq.png",
-                width: width * (isSplashScreen ? 0.4 : 0.3), // Adjust width based on isSplashScreen
-                height: height * (isSplashScreen ? 0.2 : 0.15), // Adjust height based on isSplashScreen
+                "assets/images/lg_logos/Lg_Ai_Travel_Itinerary.png",
+                width: width * (isSplashScreen ? 0.3 : 0.4), // Adjust width based on isSplashScreen
+                height: height * (isSplashScreen ? 0.3 : 0.25), // Adjust height based on isSplashScreen
               ),
             ),
             SizedBox(height: 20),
@@ -110,8 +110,8 @@ class ShowLogos extends StatelessWidget {
   Widget _buildImage(String assetPath, double width, double height, [bool useBoxFitCover = false]) {
     return Image.asset(
       assetPath,
-      width: width * 0.15,
-      height: height * 0.15,
+      width: width * 0.20,
+      height: height * 0.20,
       fit: useBoxFitCover ? BoxFit.cover : BoxFit.contain,
     );
   }

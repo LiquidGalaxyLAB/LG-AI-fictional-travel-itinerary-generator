@@ -44,7 +44,6 @@ class _AboutPageState extends ConsumerState<AboutPage> {
               parent: AlwaysScrollableScrollPhysics()),
           child: Column(
             children: [
-              SizedBox(height: Const.appBarHeight),
               AnimationLimiter(
                 child: Column(
                   children: AnimationConfiguration.toStaggeredList(
@@ -61,9 +60,6 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                       SizedBox(height: 30),
                       _buildLinks(),
                       SizedBox(height: 30),
-                      Divider(
-                          thickness: 1, color: Colors.white.withOpacity(0.5)),
-                      SizedBox(height: 20),
                     ],
                   ),
                 ),
