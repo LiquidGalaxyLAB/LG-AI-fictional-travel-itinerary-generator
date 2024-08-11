@@ -3,7 +3,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:groq/groq.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/AiModels.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/GroqModel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../config/string/String.dart';
 import '../model/MultiPlaceModel.dart';
 
 class GroqApiService {
@@ -11,13 +13,18 @@ class GroqApiService {
   GroqModel myModel = GroqModel.gemma7bit;
   static const apiUrl = "https://api.groq.com/openai/v1/chat/completions";
   final Dio dio = Dio();
-  Future<String> _getApiKey() async{
+
+  Future<String> _getApiKey() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    var userGroqKey = prefs.getString(Strings.groqApiKeys);
+    print('User Groq Key: $userGroqKey');
     await dotenv.load(fileName: 'keys.env');
-    String? GROQ_API_KEY = dotenv.env['GROQ_API']; //USING KEYS.ENV FILE FOR STORING THE KEYS
-    const String apiUrl = "https://api.groq.com/openai/v1/chat/completions";
-    String? apiKey = GROQ_API_KEY ?? 'your-api-key-here';
+    String? GROQ_API_KEY = dotenv.env['GROQ_API']; // Using keys.env file for storing the keys
+    // Use userGroqKey if it's not null or empty, otherwise fallback to the env key
+    String apiKey = (userGroqKey != null && userGroqKey.isNotEmpty) ? userGroqKey : GROQ_API_KEY ?? '$GROQ_API_KEY';
     return apiKey;
   }
+
 
   Future<GroqModelNew?> sendPostRequest(String userPrompt) async {
     try {

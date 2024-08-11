@@ -9,11 +9,12 @@ StateProvider<SSHClient?> sshClientProvider = StateProvider(
       (ref) => null,
 );
 
-StateProvider<String> ipProvider = StateProvider((ref) => '192.168.201.3');
-StateProvider<String> usernameProvider = StateProvider((ref) => 'lg');
-StateProvider<String> passwordProvider = StateProvider((ref) => 'lg');
+StateProvider<String> ipProvider = StateProvider((ref) => ''); //192.168.201.3
+StateProvider<String> usernameProvider = StateProvider((ref) => ''); //lg
+StateProvider<String> passwordProvider = StateProvider((ref) => ''); //lg
 StateProvider<int> portProvider = StateProvider((ref) => 22);
 StateProvider<int> rigsProvider = StateProvider((ref) => 3);
+StateProvider<String> groqApiProvider = StateProvider((ref) => '');
 StateProvider<bool> connectedProvider = StateProvider((ref) => false);
 StateProvider<int> leftmostRigProvider = StateProvider((ref) => 3);
 StateProvider<int> rightmostRigProvider = StateProvider((ref) => 2);

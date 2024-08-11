@@ -2,25 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/string/String.dart';
 import '../providers/connection_providers.dart';
-class CustomAppBar extends ConsumerStatefulWidget implements PreferredSizeWidget{
-  final isHomePage;
-  final shouldShowSettingsIcon;
-  const CustomAppBar({Key? key, this.isHomePage = false, this.shouldShowSettingsIcon = true}) : super(key: key);
+
+class CustomAppBar extends ConsumerStatefulWidget implements PreferredSizeWidget {
+  final bool isHomePage;
+  final bool shouldShowSettingsIcon;
+  final bool isSettingsPage;
+
+  const CustomAppBar({
+    Key? key,
+    this.isHomePage = false,
+    this.shouldShowSettingsIcon = true,
+    this.isSettingsPage = false,
+  }) : super(key: key);
+
   @override
   _CustomAppBarState createState() => _CustomAppBarState();
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => Size.fromHeight(isSettingsPage ? kToolbarHeight + kTextTabBarHeight : kToolbarHeight);
 }
 
 class _CustomAppBarState extends ConsumerState<CustomAppBar> {
   @override
   Widget build(BuildContext context) {
     var isConnected = ref.watch(connectedProvider);
+
     return AppBar(
       elevation: 0,
       title: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -71,7 +81,7 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
           ],
         ),
       ),
-      actions: widget.isHomePage
+      actions: widget.isHomePage || widget.shouldShowSettingsIcon
           ? [
         IconButton(
           icon: const Icon(Icons.settings, color: Colors.white),
@@ -80,14 +90,18 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
           },
         ),
       ]
-          : [
-        widget.shouldShowSettingsIcon ? IconButton(
-          icon: const Icon(Icons.settings, color: Colors.white),
-          onPressed: () {
-            Navigator.pushNamed(context, '/settings');
-          },
-        ): Container(),
-      ],
+          : [],
+      bottom: widget.isSettingsPage
+          ? const TabBar(
+        indicatorColor: Colors.white,
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.grey,
+        tabs: [
+          Tab(text: "Connection Settings",),
+          Tab(text: "API Settings"),
+        ],
+      )
+          : null,
     );
   }
 }

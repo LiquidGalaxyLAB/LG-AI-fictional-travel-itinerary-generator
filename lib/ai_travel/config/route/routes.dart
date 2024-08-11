@@ -32,7 +32,7 @@ class AppRoutes {
       case addCityPage:
         return _fadeRoute(const AddCity());
       case settingsPage:
-        return _fadeRoute(const ConnectionScreen());
+        return _materialRoute( const ConnectionScreen());
       case galaxyManagementPage:
         return SlidingPageRoute(page: const LiquidGalaxyManagement());
       case aboutPage:
@@ -49,8 +49,36 @@ class AppRoutes {
     return FadeRoute(page: view);
   }
   static Route<dynamic> _materialRoute(Widget view) {
-    return MaterialPageRoute(builder: (_) => view);
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => view,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        // Define the slide animation
+        const begin = Offset(1.0, 0.0); // Slide in from the right
+        const end = Offset.zero;
+        const curve = Curves.easeInOut;
+
+        var slideTween = Tween(begin: begin, end: end);
+        var slideAnimation = animation.drive(slideTween.chain(CurveTween(curve: curve)));
+
+        // Define the fade animation for exit
+        const fadeBegin = 1.0;
+        const fadeEnd = 0.0;
+        var fadeTween = Tween(begin: fadeBegin, end: fadeEnd);
+        var fadeAnimation = secondaryAnimation.drive(fadeTween.chain(CurveTween(curve: curve)));
+
+        return SlideTransition(
+          position: slideAnimation,
+          child: FadeTransition(
+            opacity: fadeAnimation,
+            child: child,
+          ),
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 300), // Adjust duration as needed
+    );
   }
+
+
 }
 
 class FadeRoute extends PageRouteBuilder {

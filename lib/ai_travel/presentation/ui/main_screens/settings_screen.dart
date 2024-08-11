@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dartssh2/dartssh2.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
@@ -15,7 +16,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../domain/ssh/SSH.dart';
 import '../../providers/connection_providers.dart';
 import '../../widgets/custom_dialog.dart';
-
 
 class ConnectionScreen extends ConsumerStatefulWidget {
   const ConnectionScreen({super.key});
@@ -30,16 +30,20 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
   TextEditingController passwordController = TextEditingController(text: '');
   TextEditingController portController = TextEditingController(text: '');
   TextEditingController rigsController = TextEditingController(text: '');
+  TextEditingController groqApiController = TextEditingController(text: '');
+
   late SSH ssh;
+
   initTextControllers() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? groqApiKey = prefs.getString(Strings.groqApiKeys);
     ipController.text = ref.read(ipProvider);
     usernameController.text = ref.read(usernameProvider);
     passwordController.text = ref.read(passwordProvider);
-    portController.text = "22";
-    rigsController.text = "3";
+    portController.text = "";
+    rigsController.text = "";
+    groqApiController.text = groqApiKey ?? '';
   }
-
 
   updateProviders() {
     ref.read(ipProvider.notifier).state = ipController.text;
@@ -48,6 +52,12 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     ref.read(portProvider.notifier).state = int.parse(portController.text);
     ref.read(rigsProvider.notifier).state = int.parse(rigsController.text);
     setRigs(int.parse(rigsController.text), ref);
+  }
+
+  updateApiKeyProviders() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    ref.read(groqApiProvider.notifier).state = groqApiController.text;
+    await prefs.setString(Strings.groqApiKeys, groqApiController.text);
   }
 
   @override
@@ -60,72 +70,253 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
     bool isConnectedToLg = ref.watch(connectedProvider);
+    bool isGroqApiAdded = ref.watch(groqApiProvider).isNotEmpty;
     double paddingValue = width * 0.2;
-    return SafeArea(
-      child: Scaffold(
-        appBar: const CustomAppBar(shouldShowSettingsIcon: false,),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(40),
-            child: Column(
-              children: [
-               /* ShowConnection(status: isConnectedToLg),*/
-                customInput(ipController, "IP Address"),
-                customInput(usernameController, "Username"),
-                customInput(passwordController, "Password",isPassword: true),
-                customInput(portController, "Port",isNumber: true),
-                customInput(rigsController, "Rigs",isNumber: true),
-                /*customInput(chatUserNameController, "Enter your name"),*/
-                Padding(
-                  padding:  EdgeInsets.only(left: paddingValue, right: paddingValue, top: 10, bottom: 10),
-                  child: SizedBox(
-                    height: 48,
-                    width: width,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ref.read(connectedProvider) ? Colors.redAccent : Colors.green,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5.0),
+    var watchGroqApi = ref.watch(groqApiProvider);
+    print("Groq Api Keyx: $watchGroqApi");
+
+    return DefaultTabController(
+      length: 2,
+      child: SafeArea(
+        child: Scaffold(
+          appBar: CustomAppBar(
+            shouldShowSettingsIcon: false,
+            isSettingsPage: true, // Set this to true for the settings page
+          ),
+          body: TabBarView(
+            children: [
+              // Connection Settings Tab
+              AnimationLimiter(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(40),
+                    child: Column(
+                      children: AnimationConfiguration.toStaggeredList(
+                        duration: const Duration(milliseconds: 500),
+                        // Adjust as needed
+                        childAnimationBuilder: (widget) => SlideAnimation(
+                          horizontalOffset: -50, // Adjust as needed
+                          child: FadeInAnimation(child: widget),
                         ),
-                      ),
-                      onPressed: () {
-                        updateProviders();
-                        if (!isConnectedToLg){
-                          _connectToLG();
-                        }else{
-                           buildShowDialog(context, () {
-                             _disconnectToLg();
-                           }, "Are you sure you want to disconnect?");
-                        }
-                      },
-                      child: Text(
-                        isConnectedToLg ? Strings.disconnect: Strings.connectToLg,
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        children: [
+                          // ShowConnection(status: isConnectedToLg),
+                          customInput(ipController, "IP Address"),
+                          customInput(usernameController, "Username"),
+                          customInput(passwordController, "Password",
+                              isPassword: true),
+                          customInput(portController, "Port", isNumber: true),
+                          customInput(rigsController, "Rigs", isNumber: true),
+                          // customInput(chatUserNameController, "Enter your name"),
+                          Padding(
+                            padding: EdgeInsets.only(
+                              left: paddingValue,
+                              right: paddingValue,
+                              top: 10,
+                              bottom: 10,
+                            ),
+                            child: SizedBox(
+                              height: 48,
+                              width: width,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: ref.read(connectedProvider)
+                                      ? Colors.redAccent
+                                      : Colors.green,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  updateProviders();
+                                  if (!isConnectedToLg) {
+                                    _connectToLG();
+                                  } else {
+                                    buildShowDialog(context, () {
+                                      _disconnectToLg();
+                                    }, "Are you sure you want to disconnect?");
+                                  }
+                                },
+                                child: Text(
+                                  isConnectedToLg
+                                      ? Strings.disconnect
+                                      : Strings.connectToLg,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
-                
-              ],
-            ),
+              ),
+              // API Settings Tab
+              AnimationLimiter(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: AnimationConfiguration.toStaggeredList(
+                      duration: const Duration(milliseconds: 500),
+                      // Adjust as needed
+                      childAnimationBuilder: (widget) => SlideAnimation(
+                        horizontalOffset: -50, // Adjust as needed
+                        child: FadeInAnimation(child: widget),
+                      ),
+                      children: [
+                        Row(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal:
+                                      MediaQuery.of(context).size.width * 0.2),
+                              child: Text(
+                                "Enter Your Groq Api Key",
+                              ),
+                            ),
+                          ],
+                        ),
+                        customInput(groqApiController, "Groq Api",
+                            isPassword: true),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  MediaQuery.of(context).size.width * 0.2),
+                          child: Row(
+                            children: [
+                              // Additional widgets can be added here if needed
+                            ],
+                          ),
+                        ),
+                        StatefulBuilder(
+                          builder:
+                              (BuildContext context, StateSetter setState) {
+                            // Add a listener to the TextEditingController to rebuild the widget when the text changes
+                            groqApiController.addListener(() {
+                              setState(
+                                  () {}); // Triggers rebuild to show/hide the remove button
+                            });
+
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                left: paddingValue,
+                                right: paddingValue,
+                                top: 10,
+                                bottom: 10,
+                              ),
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    height: 48,
+                                    width: width,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        if (groqApiController.text.isEmpty) {
+                                          SnackBarWidget().showSnackBar(
+                                            context: context,
+                                            message: "Key Cannot be empty",
+                                            color: Colors.redAccent,
+                                            duration: 3,
+                                          );
+                                          return;
+                                        } else {
+                                          buildShowDialog(context, () {
+                                            print(
+                                                "Add key ${ref.read(groqApiProvider).isEmpty}");
+                                            updateApiKeyProviders();
+                                            SnackBarWidget().showSnackBar(
+                                              context: context,
+                                              message:
+                                                  "Keys Updated Successfully",
+                                              duration: 2,
+                                            );
+                                          }, "Update Keys?");
+                                        }
+                                      },
+                                      child: Text(
+                                        Strings.addKeys,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10), // Space between buttons
+                                  if (groqApiController.text.isNotEmpty) ...[
+                                    SizedBox(
+                                      height: 48,
+                                      width: width,
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.redAccent,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          buildShowDialog(context, () async {
+                                            groqApiController.clear(); // Clear the controller
+                                            SnackBarWidget().showSnackBar(
+                                              context: context,
+                                              message:
+                                                  "Keys Removed Successfully",
+                                              duration: 2,
+                                            );
+                                          }, "Remove Keys?");
+                                        },
+                                        child: Text(
+                                          "Remove the keys",
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ],
           ),
         ),
       ),
     );
   }
 
-  Future<dynamic> buildShowDialog(BuildContext context, VoidCallback onConfirm, String dialogTitle) {
+  Future<dynamic> buildShowDialog(
+      BuildContext context, VoidCallback onConfirm, String dialogTitle) {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
-        return CustomDialog(onConfirm: () {
-          onConfirm();
-          Navigator.pop(context);
-        }, onCancel: () {
-          Navigator.pop(context);
-        },
+        return CustomDialog(
+          onConfirm: () {
+            onConfirm();
+            Navigator.pop(context);
+          },
+          onCancel: () {
+            Navigator.pop(context);
+          },
           isErrorDialogue: false,
           errorTitle: Strings.doDisconnect,
           dialogTitle: dialogTitle,
@@ -137,8 +328,9 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
   Future<void> _connectToLG() async {
     bool? result = await ssh.connectToLG(context);
     ref.read(connectedProvider.notifier).state = result!;
-    if(ref.read(connectedProvider)){
-      ssh.chatResponseBalloon("Ready for some imaginations to explore?",LatLng(41.6177, 0.6200), "Welcome!","Lleida Spain");
+    if (ref.read(connectedProvider)) {
+      ssh.chatResponseBalloon("Ready for some imaginations to explore?",
+          LatLng(41.6177, 0.6200), "Welcome!", "Lleida Spain");
       ssh.execute();
       SSH(ref: ref).showSplashLogo();
     }
@@ -149,19 +341,25 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     ref.read(connectedProvider.notifier).state = result!;
   }
 
-  Widget customInput(TextEditingController controller, String labelText, {bool isPassword = false, bool isNumber = false}) {
+  Widget customInput(TextEditingController controller, String labelText,
+      {bool isPassword = false, bool isNumber = false}) {
+    bool _obscureText =
+        true; // This should be maintained within the StatefulBuilder
+
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
-        bool _obscureText = true;
-
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2, vertical: 10),
+          padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.2,
+              vertical: 10),
           child: TextFormField(
             controller: controller,
             obscureText: isPassword ? _obscureText : false,
             keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-            inputFormatters: isNumber ? [FilteringTextInputFormatter.digitsOnly] : [],
-            style: TextStyle(color: Colors.white), // Text color
+            inputFormatters:
+                isNumber ? [FilteringTextInputFormatter.digitsOnly] : [],
+            style: TextStyle(color: Colors.white),
+            // Text color
             decoration: InputDecoration(
               labelText: labelText,
               labelStyle: TextStyle(color: Colors.white),
@@ -175,19 +373,20 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                 borderRadius: BorderRadius.circular(5.0),
                 borderSide: const BorderSide(color: Colors.white),
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
               suffixIcon: isPassword
                   ? IconButton(
-                icon: Icon(
-                  _obscureText ? Icons.visibility_off : Icons.visibility,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscureText = !_obscureText;
-                  });
-                },
-              )
+                      icon: Icon(
+                        _obscureText ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                    )
                   : null,
             ),
           ),
@@ -195,7 +394,6 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
       },
     );
   }
-
 
   @override
   void dispose() {
@@ -208,7 +406,6 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     super.dispose();
   }
 }
-
 
 class ControlButton extends StatelessWidget {
   final IconData icon;
@@ -242,8 +439,12 @@ class ControlButton extends StatelessWidget {
           icon: Icon(icon, size: 24),
           label: Text(label),
           style: ElevatedButton.styleFrom(
-            foregroundColor: isShutdown ? Colors.white : (isPrimary ? Colors.white : Colors.black),
-            backgroundColor: isShutdown ? Colors.red : (isPrimary ? Colors.blue : Colors.white),
+            foregroundColor: isShutdown
+                ? Colors.white
+                : (isPrimary ? Colors.white : Colors.black),
+            backgroundColor: isShutdown
+                ? Colors.red
+                : (isPrimary ? Colors.blue : Colors.white),
             textStyle: const TextStyle(fontSize: 16),
             padding: const EdgeInsets.all(10),
             shape: RoundedRectangleBorder(
