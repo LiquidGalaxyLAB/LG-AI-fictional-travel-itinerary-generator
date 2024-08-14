@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(isHomePage: true),
+      appBar: const CustomAppBar(isHomePage: true,shouldShowSettingsIcon: false,),
       drawer: const DrawerWidget(),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ),
-      floatingActionButton: Container(
+/*      floatingActionButton: Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.white, width: 1),
           borderRadius: BorderRadius.circular(16),
@@ -93,7 +93,7 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: AppColors.tertiaryColor,
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,*/
     );
   }
   List<Destination> _generateDefaultVisitingLocationList(){

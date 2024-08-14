@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/config/route/routes.dart';
 import '../../widgets/app_bar.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -43,13 +45,12 @@ class ShowLogos extends StatelessWidget {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
 
-    double scale = isSplashScreen ? 0.8 : 0.6; // Adjust scale based on isSplashScreen
+    double scale = isSplashScreen ? 0.8 : 0.8; // Adjust scale based on isSplashScreen
 
     return SizedBox(
       width: width * scale,
       height: height * scale,
       child: FittedBox(
-        fit: BoxFit.scaleDown,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -58,11 +59,20 @@ class ShowLogos extends StatelessWidget {
             Center(
               child: Image.asset(
                 "assets/images/lg_logos/Lg_Ai_Travel_Itinerary.png",
-                width: width * (isSplashScreen ? 0.3 : 0.4), // Adjust width based on isSplashScreen
-                height: height * (isSplashScreen ? 0.3 : 0.25), // Adjust height based on isSplashScreen
+                width: width * (isSplashScreen ? 0.3 : 0.5), // Adjust width based on isSplashScreen
+                height: height * (isSplashScreen ? 0.3 : 0.5), // Adjust height based on isSplashScreen
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
+             Text(
+              "LG AI Travel Itinerary",
+              style: GoogleFonts.kalam(
+                fontSize: 50,
+                fontWeight: FontWeight.normal,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 20),
             // Line 2
             Wrap(
               alignment: WrapAlignment.center,
