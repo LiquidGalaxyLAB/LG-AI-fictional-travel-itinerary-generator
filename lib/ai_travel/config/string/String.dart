@@ -15,8 +15,8 @@ class Strings{
   static const String areYouSure = "Are you sure?";
   static const String explore = "Explore";
   static const String disconnectCompleted = "Disconnect completed";
-  static const String parsingError = "Error: getting the Information, Please switch to gemma-7b-it for best experience";
-  static const String pleaseUseGemma7b = "Please use gemma-7b-it for best experience";
+  static const String parsingError = "Error: getting the Information, Please trying switching other models";
+  static const String pleaseUseGemma7b = "These are AI-generated and might face issues while retrieving the places. Please use Gemma models for the best experience";
   static const String description = "Description";
   static const String reviews = "Reviews";
   static const String groqApiKeys = "GROQ API Keys";

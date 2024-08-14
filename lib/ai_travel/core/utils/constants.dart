@@ -23,10 +23,10 @@ class Const {
   static double orbitZoomScale = 13;
   static double defaultZoomScale = 2;
   static List<String> availableModels = [
-    '',
-    '',
-    '',
-    ''
+    'gemma-7b-it',
+    'gemma2-9b-it',
+    'llama3-70b-8192',
+    'llama3-8b-8192'
   ];
   static List<String> availableLanguages = [
     'English',
@@ -50,7 +50,7 @@ class Const {
   static List<String> testPrompts = [
     'Provide details about one eating place in \$city including its name, the place accurate coordinates in array format, and a brief description in JSON format. No Markdown.',
     'create interlinked story about five famous places to visit in \$city. Please provide a response in a structured JSON format that matches the following model: ${Places} containing name,description of the story,address for all, and a single very short overall `title`. No Markdown.',
-    'Create an interlinked story about \$city. Please provide a response in a structured JSON format that matches the following model:\n\n{\n  \"Title\": \"A brief and descriptive title for the story\",\n  \"Places\": [\n    {\n      \"Name\": \"The name of the place\",\n      \"Description\": \"A detailed description of the place, including its significance and notable features\",\n      \"Address\": \"The full address of the place\",\n      \"City\": \"The city where the place is located\"\n    },\n    {\n      \"Name\": \"The name of another place\",\n      \"Description\": \"A detailed description of the place, including its significance and notable features\",\n      \"Address\": \"The full address of the place\",\n      \"City\": \"The city where the place is located\"\n    }\n    // Add three more places with the same structure\n  ]\n}\n\nEnsure that the JSON response uses the exact attribute names as shown above: \"Title\", \"Name\", \"Description\", \"Address\", and \"City\". No Markdown is needed. Ensure all details are accurate and specific.',
+    'Create an interlinked story about ten different \$city. Please provide a response in a structured JSON format that matches the following model:\n\n{\n  \"Title\": \"A brief and descriptive title for the story\",\n  \"Places\": [\n    {\n      \"Name\": \"The name of the place\",\n      \"Description\": \"A very long and detailed description of the place, including its significance and notable features\",\n      \"Address\": \"The full address of the place\",\n      \"City\": \"The city where the place is located\"\n    },\n    {\n      \"Name\": \"The name of another place\",\n      \"Description\": \"A detailed description of the place, including its significance and notable features\",\n      \"Address\": \"The full address of the place\",\n      \"City\": \"The city where the place is located\"\n    }\n   ]\n}\n\nEnsure that the JSON response uses the exact attribute names as shown above: \"Title\", \"Name\", \"Description\", \"Address\", and \"City\". No Markdown is needed. Ensure all details are accurate and specific.',
     'Create an interlinked story about \$city. Please provide a response in a structured JSON format that matches the following. Each place should include its name, description of the story, address, and the city name it is located in. Additionally, provide a single very short overall title for the story. Ensure all details are accurate and specific. No Markdown.',
     'Create an interlinked story about five famous places to visit in \$city. Please provide a response in a structured JSON format that matches the following model: ${Places}. Each place should include its name, description of the story, address, and the city it is located in. Additionally, provide a single very short overall title for the story. Ensure all details are accurate and specific. No Markdown',
     'Provide details about a famous place to visit in \$city. Format the information in JSON as follows:\n{\n  "name": "Place Name",\n  "address": "Place Address",\n  "description": "Brief Description"\n}. No Markdown.',
