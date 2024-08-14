@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/string/String.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/config/theme/app_theme.dart';
+import 'package:lg_ai_travel_itinerary/ai_travel/core/utils/constants.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/MultiPlaceModel.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/data/model/TravelDestinations.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/providers/connection_providers.dart';
@@ -42,9 +43,16 @@ class _AddCityState extends ConsumerState<AddCity> {
   late  TextEditingController _textEditingController = TextEditingController();
   late Place place = Place(name: "", location: [], description: "", address: '', place: '');
   late Places places = Places(name: [], description: [], address: [], title: "");
- TravelDestinations travelDestinations = TravelDestinations(title: "", Dest: []);
+  bool _isExpanded = false;
+  TravelDestinations travelDestinations = TravelDestinations(title: "", Dest: []);
   var isLoading = false;
   SpeechToText _speechToText = SpeechToText();
+
+  void _toggleExpand() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+    });
+  }
   @override
   void initState() {
     super.initState();
@@ -56,13 +64,19 @@ class _AddCityState extends ConsumerState<AddCity> {
     try {
       final useCase = sl.get<GetModelUseCase>();
       var models = await useCase.getAvailableModels();
+      groqAiModelList.clear();
       models?.data?.forEach((element) {
-        groqAiModelList.add(element.id!);
+        Const.availableModels.forEach((model) {
+          if (element.id == model) {
+            groqAiModelList.add(element.id!);
+          }
+        });
       });
-      if(groqAiModelList.contains('gemma-7b-it')){
+      if (groqAiModelList.contains('gemma-7b-it')) {
         groqAiModelList.remove('gemma-7b-it');
         groqAiModelList.insert(0, 'gemma-7b-it');
       }
+      print("GroqAiModellist ${groqAiModelList}");
       setState(() {
         ref.read(groqAiModelsListProvider.notifier).state = groqAiModelList;
         isLoadingModels = false;
@@ -74,6 +88,7 @@ class _AddCityState extends ConsumerState<AddCity> {
       });
     }
   }
+
 
   void _getResponse(String poi) async {
     setState(() {
@@ -124,13 +139,6 @@ class _AddCityState extends ConsumerState<AddCity> {
   }
 
 
-  void _showErrorDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => ErrorDialog(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -171,19 +179,19 @@ class _AddCityState extends ConsumerState<AddCity> {
                     getResponse: _getResponse,
                     speechToText: _speechToText,
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.onBackgroundColor.withAlpha(120),
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    child:  Padding(
+                    child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center, // Center the children vertically
                         children: [
-                           Icon(Iconsax.info_circle, color: AppColors.textColor.withAlpha(192)),
+                          Icon(Iconsax.info_circle, color: AppColors.textColor.withAlpha(192)),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
@@ -212,43 +220,6 @@ class _AddCityState extends ConsumerState<AddCity> {
   }
 }
 
-class ErrorDialog extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              'assets/images/error_image.png', // Replace with your image path
-              height: 100,
-            ),
-            SizedBox(height: 20),
-            Text(
-              "No results found. Please try again with a different query.",
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("OK"),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 Future<dynamic> buildShowDialog(BuildContext context, VoidCallback onConfirm) {
   return showDialog(
