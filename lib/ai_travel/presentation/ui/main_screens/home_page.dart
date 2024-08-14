@@ -10,9 +10,11 @@ import 'package:lg_ai_travel_itinerary/ai_travel/data/model/GroqModel.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/main_screens/add_city.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/app_bar.dart';
 import 'package:lg_ai_travel_itinerary/ai_travel/presentation/widgets/destination_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../data/model/destination.dart';
 import '../../../data/service/apiService.dart';
+import '../../widgets/custom_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,6 +24,25 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool isDialogueShown = false;
+
+  @override
+  void initState() {
+    _dialogueState();
+    super.initState();
+  }
+
+  void _dialogueState() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    isDialogueShown = prefs.getBool(Strings.beAwareOfAI) ?? false;
+    if(isDialogueShown == false){
+      buildShowDialog(context, () async {
+        prefs.setBool(Strings.beAwareOfAI, true);
+      });
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -148,6 +169,23 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+Future<dynamic> buildShowDialog(BuildContext context, VoidCallback onConfirm) {
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return CustomDialog(onConfirm: () {
+        onConfirm();
+        Navigator.pop(context);
+      }, onCancel: () {
+        Navigator.pop(context);
+      },
+        isErrorDialogue: true,
+        imgSrc: 'assets/images/vr.png',
+        errorTitle: Strings.beAwareOfAI,
+      );
+    },
+  );
+}
 
 class DrawerWidget extends StatelessWidget {
   const DrawerWidget({
