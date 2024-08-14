@@ -62,7 +62,7 @@ class KMLMakers {
 				<href>$imageUrl</href>
 			</Icon>
 			<overlayXY x="0" y="1" xunits="fraction" yunits="fraction"/>
-			<screenXY x="0" y="0.98" xunits="fraction" yunits="fraction"/>
+			<screenXY x="0.3" y="0.95" xunits="fraction" yunits="fraction"/>
 			<rotationXY x="0" y="0" xunits="fraction" yunits="fraction"/>
 			<size x="0" y="0" xunits="pixels" yunits="fraction"/>
 		</ScreenOverlay>
