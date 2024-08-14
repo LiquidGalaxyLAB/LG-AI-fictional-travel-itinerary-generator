@@ -55,6 +55,7 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                         ),
                     children: [
                       ShowLogos(isSplashScreen: false),
+
                       SizedBox(height: 50),
                       _buildDescription(),
                       SizedBox(height: 30),

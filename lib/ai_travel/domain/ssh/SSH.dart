@@ -152,7 +152,7 @@ class SSH {
 
   showSplashLogo() async{
     await ref.read(sshClientProvider)?.execute(
-        "echo '${KMLMakers.screenOverlayImage(ImageConst.splashOnline2, Const.splashAspectRatio)}' > /var/www/html/kml/slave_${ref.read(leftmostRigProvider)}.kml");
+        "echo '${KMLMakers.screenOverlayImage(ImageConst.splashOnline3, Const.splashAspectRatio)}' > /var/www/html/kml/slave_${ref.read(leftmostRigProvider)}.kml");
   }
 
 

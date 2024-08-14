@@ -58,6 +58,36 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
                 ),
               ],
             ),
+            //show a circular button having an icon of navigation and text as "Explore city" and border color as white
+            if(widget.isHomePage)
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/addCity');
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white, width: 1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.explore),
+                        color: Colors.white,
+                        onPressed: () {},
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 16.0),
+                        child: Text(
+                          "Explore city",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
             if (widget.isHomePage)
               Row(
                 children: [
@@ -81,7 +111,7 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
           ],
         ),
       ),
-      actions: widget.isHomePage || widget.shouldShowSettingsIcon
+      actions: widget.shouldShowSettingsIcon
           ? [
         IconButton(
           icon: const Icon(Icons.settings, color: Colors.white),

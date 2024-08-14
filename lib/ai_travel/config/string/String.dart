@@ -20,6 +20,11 @@ class Strings{
   static const String description = "Description";
   static const String reviews = "Reviews";
   static const String groqApiKeys = "GROQ API Keys";
+  static const String ipAddress = "IP Address";
+  static const String port = "Port";
+  static const String userName = "Username";
+  static const String password = "Password";
+  static const String noOfRigs = "No of Rigs";
 }
 
 const String gemma7b = "gemma-7b-it";

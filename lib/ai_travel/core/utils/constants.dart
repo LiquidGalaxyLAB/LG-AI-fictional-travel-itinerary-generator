@@ -22,6 +22,12 @@ class Const {
   static double tourZoomScale = 16;
   static double orbitZoomScale = 13;
   static double defaultZoomScale = 2;
+  static List<String> availableModels = [
+    '',
+    '',
+    '',
+    ''
+  ];
   static List<String> availableLanguages = [
     'English',
     'Spanish',

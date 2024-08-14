@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(isHomePage: true),
+      appBar: const CustomAppBar(isHomePage: true,shouldShowSettingsIcon: false,),
       drawer: const DrawerWidget(),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ),
-      floatingActionButton: Container(
+/*      floatingActionButton: Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.white, width: 1),
           borderRadius: BorderRadius.circular(16),
@@ -93,7 +93,7 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: AppColors.tertiaryColor,
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,*/
     );
   }
   List<Destination> _generateDefaultVisitingLocationList(){
@@ -188,12 +188,23 @@ class DrawerWidget extends StatelessWidget {
                 Navigator.pushNamed(context, '/galaxyManagement');
               },
             ),
-            ListTile(
+
+            ///we are not using it for now
+            /*ListTile(
               leading: Icon(Iconsax.map,color: Colors.white,),
               title: Text('Map',style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, '/googleMap');
+              },
+            ),*/
+
+            ListTile(
+              leading: Icon(Icons.settings,color: Colors.white,),
+              title: Text('Settings', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/settings');
               },
             ),
             ListTile(
