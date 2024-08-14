@@ -188,12 +188,23 @@ class DrawerWidget extends StatelessWidget {
                 Navigator.pushNamed(context, '/galaxyManagement');
               },
             ),
-            ListTile(
+
+            ///we are not using it for now
+            /*ListTile(
               leading: Icon(Iconsax.map,color: Colors.white,),
               title: Text('Map',style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, '/googleMap');
+              },
+            ),*/
+
+            ListTile(
+              leading: Icon(Icons.settings,color: Colors.white,),
+              title: Text('Settings', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/settings');
               },
             ),
             ListTile(

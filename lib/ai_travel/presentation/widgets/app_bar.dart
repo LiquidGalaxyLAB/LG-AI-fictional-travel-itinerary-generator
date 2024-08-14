@@ -81,16 +81,6 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
           ],
         ),
       ),
-      actions: widget.isHomePage || widget.shouldShowSettingsIcon
-          ? [
-        IconButton(
-          icon: const Icon(Icons.settings, color: Colors.white),
-          onPressed: () {
-            Navigator.pushNamed(context, '/settings');
-          },
-        ),
-      ]
-          : [],
       bottom: widget.isSettingsPage
           ? const TabBar(
         indicatorColor: Colors.white,
