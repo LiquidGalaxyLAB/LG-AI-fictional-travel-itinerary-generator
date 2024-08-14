@@ -37,21 +37,32 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
   initTextControllers() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? groqApiKey = prefs.getString(Strings.groqApiKeys);
+    ref.read(ipProvider.notifier).state = prefs.getString(Strings.ipAddress) ?? '';
+    ref.read(usernameProvider.notifier).state = prefs.getString(Strings.userName) ?? '';
+    ref.read(passwordProvider.notifier).state = prefs.getString(Strings.password) ?? '';
+    ref.read(portProvider.notifier).state = prefs.getInt(Strings.port) ?? 0;
+    ref.read(rigsProvider.notifier).state = prefs.getInt(Strings.noOfRigs) ?? 0;
     ipController.text = ref.read(ipProvider);
     usernameController.text = ref.read(usernameProvider);
     passwordController.text = ref.read(passwordProvider);
-    portController.text = "";
-    rigsController.text = "";
+    portController.text = ref.read(portProvider).toString();
+    rigsController.text = ref.read(rigsProvider).toString();
     groqApiController.text = groqApiKey ?? '';
   }
 
-  updateProviders() {
+  updateProviders() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     ref.read(ipProvider.notifier).state = ipController.text;
     ref.read(usernameProvider.notifier).state = usernameController.text;
     ref.read(passwordProvider.notifier).state = passwordController.text;
     ref.read(portProvider.notifier).state = int.parse(portController.text);
     ref.read(rigsProvider.notifier).state = int.parse(rigsController.text);
     setRigs(int.parse(rigsController.text), ref);
+    await prefs.setString(Strings.ipAddress, ipController.text);
+    await prefs.setString(Strings.userName, usernameController.text);
+    await prefs.setString(Strings.password, passwordController.text);
+    await prefs.setInt(Strings.port, int.parse(portController.text));
+    await prefs.setInt(Strings.noOfRigs, int.parse(rigsController.text));
   }
 
   updateApiKeyProviders() async {
