@@ -25,6 +25,7 @@ class Strings{
   static const String userName = "Username";
   static const String password = "Password";
   static const String noOfRigs = "No of Rigs";
+  static const String beAwareOfAI = "Be aware of AI Hallucinations";
 }
 
 const String gemma7b = "gemma-7b-it";

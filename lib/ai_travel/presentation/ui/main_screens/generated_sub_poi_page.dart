@@ -40,112 +40,180 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
     return SafeArea(
       child: Scaffold(
         appBar: const CustomAppBar(),
-        body: Center(
-          child: Padding(
-            padding: EdgeInsets.only(
-                top: 20, left: paddingValue, right: paddingValue, bottom: 20),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: height * 0.5,
-                    decoration: BoxDecoration(
-                      color: AppColors.onBackgroundColor,
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: Container(
-                            height: double.infinity,
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10.0),
-                                child: Image.asset(
-                                  'assets/images/travelPhoto.jpg',
-                                  // Replace with your image path
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                          ),
+        body: Stack(
+          children: [
+            Center(
+              child: Padding(
+                padding: EdgeInsets.only(
+                    top: 20, left: paddingValue, right: paddingValue, bottom: 20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: height * 0.8,
+                        decoration: BoxDecoration(
+                          color: AppColors.onBackgroundColor,
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
-                        Expanded(
-                          flex: 7,
-                          child: Padding(
-                            padding: EdgeInsets.all(10.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.travelDestinations.title,
-                                  // Replace with your text
-                                  style: const TextStyle(
-                                    fontSize: 32.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 10.0),
-                                SizedBox(height: 10.0),
-                                Expanded(
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: widget.travelDestinations.Dest!.map((description) {
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 5.0),
-                                          child: Text(
-                                            description.description,
-                                            style: TextStyle(
-                                              fontSize: 18.0,
-                                              fontWeight: FontWeight.normal,
-                                            ),
-                                          ),
-                                        );
-                                      }).toList(),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: Container(
+                                height: double.infinity,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    child: Image.asset(
+                                      'assets/images/travelPhoto.jpg',
+                                      // Replace with your image path
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 10.0),
-                                Container(
-                                  alignment: Alignment.center,
-                                  child: CustomButtonWidget(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        SlidingPageRoute(page: GoogleMapScreen(destinations: widget.travelDestinations.Dest,)),
-                                      ).then((_) {
-                                        Navigator.pushAndRemoveUntil(
-                                          context,
-                                          SlidingPageRoute(page: HomePage()),
-                                              (route) {
-                                            // Keep the route if it's the homePage route or if it's the root route
-                                            return route.settings.name == homePage || !Navigator.canPop(context);
-                                          },
-                                        );
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
+                            Expanded(
+                              flex: 7,
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.travelDestinations.title,
+                                      style: const TextStyle(
+                                        fontSize: 32.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10.0),
+                                    Expanded(
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: widget.travelDestinations.Dest!.asMap().entries.map((description) {
+                                            return GestureDetector(
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  SlidingPageRoute(
+                                                    page: GoogleMapScreen(destinations: widget.travelDestinations.Dest, selectedDestination: description.key ),
+                                                  ),
+                                                ).then((_) {
+                                                  Navigator.pushAndRemoveUntil(
+                                                    context,
+                                                    SlidingPageRoute(page: HomePage()),
+                                                        (route) {
+                                                      // Keep the route if it's the homePage route or if it's the root route
+                                                      return route.settings.name == homePage || !Navigator.canPop(context);
+                                                    },
+                                                  );
+                                                });
+                                              },
+                                              child: Padding(
+                                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                                child: Column(
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                      children: [
+                                                        Stack(
+                                                          children: [
+                                                            // Text widget for the actual text
+                                                            RichText(
+                                                              text: TextSpan(
+                                                                text: "${description.value.name}",
+                                                                style: const TextStyle(
+                                                                  fontSize: 24.0,
+                                                                  fontWeight: FontWeight.normal,
+                                                                  color: Colors.white, // Text color
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            // Positioned widget to create the underline
+                                                            Positioned(
+                                                              bottom: 0,
+                                                              left: 0,
+                                                              child: Container(
+                                                                height: 2.0, // Thickness of the underline
+                                                                color: Colors.white, // Underline color
+                                                                width: "${description.value.description}".length * 14.0, // Adjusted the width of the underline based on text length
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        const SizedBox(width: 5.0), // Adding some space between text and icon
+                                                        const Icon(
+                                                          Icons.play_circle,
+                                                          color: Colors.white,
+                                                          size: 24.0,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 10.0),
+                                                    Text(
+                                                      description.value.description,
+                                                      style: const TextStyle(
+                                                        fontSize: 18.0,
+                                                        fontWeight: FontWeight.normal,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+
+
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10.0),
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: CustomButtonWidget(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            SlidingPageRoute(page: GoogleMapScreen(destinations: widget.travelDestinations.Dest)),
+                                          ).then((_) {
+                                            Navigator.pushAndRemoveUntil(
+                                              context,
+                                              SlidingPageRoute(page: HomePage()),
+                                                  (route) {
+                                                // Keep the route if it's the homePage route or if it's the root route
+                                                return route.settings.name == homePage || !Navigator.canPop(context);
+                                              },
+                                            );
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
+
+          ],
         ),
       ),
     );
   }
-
-
-
 }
+
+
+
+
+
