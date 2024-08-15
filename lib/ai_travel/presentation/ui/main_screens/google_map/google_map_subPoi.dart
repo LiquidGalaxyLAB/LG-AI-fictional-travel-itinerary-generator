@@ -29,13 +29,19 @@ import '../../use_case/MiscUseCase.dart';
 import '../../use_case/api_use_case.dart';
 
 class GoogleMapScreen extends ConsumerStatefulWidget {
-  //final Places destinations;
   final List<Destinations> destinations;
-  const GoogleMapScreen({super.key, required this.destinations});
+  final int selectedDestination;
+
+  const GoogleMapScreen({
+    super.key,
+    required this.destinations,
+    this.selectedDestination = 0,
+  });
 
   @override
   _GoogleMapScreenState createState() => _GoogleMapScreenState();
 }
+
 
 class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
   final Completer<GoogleMapController> _controller =
@@ -61,6 +67,11 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
     Future.delayed(Duration(seconds: 2), () {
       _getSubPoiInfo();
       _showChatResponse(widget.destinations);
+      if(widget.selectedDestination != 0){
+        setState(() {
+          _currentPlaceIndex = widget.selectedDestination;
+        });
+      }
       print("currentIndex ${_currentPlaceIndex}");
     });
   }
@@ -308,7 +319,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                             ),
                             SizedBox(height: 28),
                             isLoading
-                                ? Center(child: CircularProgressIndicator())
+                                ? Center(child: Text("--"))
                                 : Column(
                                     children: [
                                       Row(
@@ -386,7 +397,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                                 Divider(),
                                 const SizedBox(height: 10),
                                 _isLoading
-                                    ? Center(child: CircularProgressIndicator())
+                                    ? Center(child: Text("--"))
                                     : ListView.builder(
                                         shrinkWrap: true,
                                         physics: NeverScrollableScrollPhysics(),
@@ -647,23 +658,97 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                 children: <Widget>[
                   Expanded(
                     flex: 6,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      child: Container(
-                        color: Colors.black,
-                        child: GoogleMap(
-                          mapType: MapType.satellite,
-                          initialCameraPosition: _kGooglePlex,
-                          onMapCreated: (GoogleMapController controller) {
-                            _controller.complete(controller);
-                          },
+                    child: Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          child: Container(
+                            color: Colors.black,
+                            child: GoogleMap(
+                              mapType: MapType.satellite,
+                              initialCameraPosition: _kGooglePlex,
+                              onMapCreated: (GoogleMapController controller) {
+                                _controller.complete(controller);
+                              },
+                            ),
+                          ),
                         ),
-                      ),
+                        Positioned(
+                          bottom: 16.0, // Adjust the distance from the bottom as needed
+                          left: 16.0,   // Adjust the distance from the left as needed
+                          right: 16.0,  // Adjust the distance from the right as needed
+                          child: Container(
+                            padding: EdgeInsets.all(10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                /*const SizedBox(height: 10),
+                                _roundedBtn("Start Auto Touring", () {},
+                                    Icon(Iconsax.play, color: Colors.white)),*/
+                                const SizedBox(height: 24),
+                                Opacity(
+                                  opacity: ref.watch(connectedProvider) ? 1.0 : 0.6,
+                                  child: _cords != null
+                                      ? ref.watch(isOrbitPlaying)
+                                      ? _roundedBtn(
+                                    "Stop Orbit",
+                                        () {
+                                      ref.read(isOrbitPlaying.notifier).state = false;
+                                      SSH(ref: ref).stopOrbit(context);
+                                      // _flyTo(_cords![0]!.latitude, _cords![0]!.longitude, 100, 60, 0);
+
+                                    },
+                                    Icon(Iconsax.stop, color: Colors.white),
+                                  )
+                                      : _roundedBtn(
+                                    "Play Orbit",
+                                        () {
+                                      ref.read(isOrbitPlaying.notifier).state = true;
+                                      _startOrbit(_cords![0]!.latitude, _cords![0]!.longitude, 200, 60, 0);
+                                    },
+                                    Icon(Iconsax.play, color: Colors.white),
+                                  )
+                                      : CircularProgressIndicator(), // Show a loading indicator while fetching coordinates
+                                ),
+                                ref.watch(connectedProvider)
+                                    ? const SizedBox
+                                    .shrink()
+                                    : const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.start,
+                                    children: [
+                                      Icon(
+                                        Icons.info,
+                                        color: Colors.grey,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        "Connect with LG Rigs to use this feature",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.normal,
+                                          color: Colors
+                                              .white, // Set text color to match the icon
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+
                   const SizedBox(height: 8),
                   Expanded(
-                    flex: 4, // 40% of the height
+                    flex: 6, // 40% of the height
                     child: Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
@@ -686,76 +771,98 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                           stops: [0.0, 0.3, 0.7, 1.0],
                         ),
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(10.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                /*const SizedBox(height: 10),
-                                _roundedBtn("Start Auto Touring", () {},
-                                    Icon(Iconsax.play, color: Colors.white)),*/
-                                const SizedBox(height: 24),
-                              Opacity(
-                                opacity: ref.watch(connectedProvider) ? 1.0 : 0.6,
-                                child: _cords != null
-                                    ? ref.watch(isOrbitPlaying)
-                                    ? _roundedBtn(
-                                  "Stop Orbit",
-                                      () {
-                                    ref.read(isOrbitPlaying.notifier).state = false;
-                                    SSH(ref: ref).stopOrbit(context);
-                                    // _flyTo(_cords![0]!.latitude, _cords![0]!.longitude, 100, 60, 0);
-
-                                  },
-                                  Icon(Iconsax.stop, color: Colors.white),
-                                )
-                                    : _roundedBtn(
-                                  "Play Orbit",
-                                      () {
-                                    ref.read(isOrbitPlaying.notifier).state = true;
-                                    _startOrbit(_cords![0]!.latitude, _cords![0]!.longitude, 200, 60, 0);
-                                  },
-                                  Icon(Iconsax.play, color: Colors.white),
-                                )
-                                    : CircularProgressIndicator(), // Show a loading indicator while fetching coordinates
-                              ),
-                                ref.watch(connectedProvider)
-                                    ? const SizedBox
-                                        .shrink() // This will render an empty widget when connected
-                                    : const Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            Icon(
-                                              Icons.info,
-                                              color: Colors.grey,
-                                              size: 20,
-                                            ),
-                                            SizedBox(width: 4),
-                                            Text(
-                                              "Connect with LG Rigs to use this feature",
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.normal,
-                                                color: Colors
-                                                    .white, // Set text color to match the icon
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                const SizedBox(height: 20),
+                                Padding(
+                                  padding: EdgeInsets.only(left: 10.0,top: 5),
+                                  child: Text("Explore the places: ", style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),),
+                                ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
+                            Expanded(
+                              child: Container(
+                                padding: EdgeInsets.all(10.0),
+                                child: ListView.builder(
+                                  itemCount: widget.destinations.length,
+                                  itemBuilder: (context, index) {
+                                    final place = widget.destinations[index];
+                                    return Container(
+                                      margin: EdgeInsets.symmetric(vertical: 4.0), // Space between items
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Colors.white, // Border color
+                                          width: 1.0, // Border width
+                                        ),
+                                        borderRadius: BorderRadius.circular(8.0), // Border radius
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          ListTile(
+                                            contentPadding: EdgeInsets.symmetric(horizontal: 10.0), // Padding inside the ListTile
+                                            title: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        place.name, // Display place name
+                                                        style: const TextStyle(
+                                                          fontSize: 18.0,
+                                                          color: Colors.white, // Adjust color as needed
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                        overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
+                                                      ),
+                                                      Text(
+                                                        place.description, // Display place address
+                                                        style: const TextStyle(
+                                                          fontSize: 14.0,
+                                                          color: Colors.white, // Adjust color as needed
+                                                        ),
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Icon(
+                                                  _currentPlaceIndex == index
+                                                      ? Icons.pause_circle // Pause icon
+                                                      : Icons.play_circle, // Play icon
+                                                  color: Colors.white, // Icon color
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () {
+                                              _getSubPoiInfo();
+                                              changeMapPosition();
+                                              _showChatResponse(widget.destinations);
+                                              setState(() {
+                                                _currentPlaceIndex = index;
+                                              });
+                                            },
+                                            child: Container(
+                                              color: Colors.transparent, // Transparent color to allow interaction
+                                              height: 60.0, // Adjust height as needed
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
                     ),
                   ),
                 ],
@@ -772,7 +879,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
         ? Container(
             width: 24, // Adjust as needed
             height: 24, // Adjust as needed
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(child: Text("--")),
           )
         : Row(
             children: [
@@ -821,41 +928,47 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
   }
 
   Widget _roundedBtn(String title, Function() onTap, Icon icon) {
+    double width = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        height: 48,
-        decoration: BoxDecoration(
-          color: AppColors.tertiaryColor,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: Colors.white,
-            width: 0.5,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Title aligned to the left
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: Text(
-                title,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Container(
+            width: width * 0.12,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.tertiaryColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Colors.white,
+                width: 0.5,
               ),
             ),
-            // Icon aligned to the right
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: icon,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Title aligned to the left
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                // Icon aligned to the right
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: icon,
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

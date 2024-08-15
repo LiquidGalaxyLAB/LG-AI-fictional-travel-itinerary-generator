@@ -94,7 +94,8 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ),
-/*      floatingActionButton: Container(
+      ///added the feature at the appbar
+      /*      floatingActionButton: Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.white, width: 1),
           borderRadius: BorderRadius.circular(16),
