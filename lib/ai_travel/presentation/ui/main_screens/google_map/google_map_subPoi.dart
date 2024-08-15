@@ -42,7 +42,6 @@ class GoogleMapScreen extends ConsumerStatefulWidget {
   _GoogleMapScreenState createState() => _GoogleMapScreenState();
 }
 
-
 class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
@@ -67,7 +66,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
     Future.delayed(Duration(seconds: 2), () {
       _getSubPoiInfo();
       _showChatResponse(widget.destinations);
-      if(widget.selectedDestination != 0){
+      if (widget.selectedDestination != 0) {
         setState(() {
           _currentPlaceIndex = widget.selectedDestination;
         });
@@ -77,7 +76,8 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
   }
 
   Future<void> _fetchCoordinates() async {
-    var newLatLng = await locationFromAddress("${widget.destinations[_currentPlaceIndex].name}, ${widget.destinations[_currentPlaceIndex].city}");
+    var newLatLng = await locationFromAddress(
+        "${widget.destinations[_currentPlaceIndex].name}, ${widget.destinations[_currentPlaceIndex].city}");
     setState(() {
       _cords = newLatLng;
     });
@@ -122,8 +122,11 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
     }
   }
 
-  double kelvinToCelsius(double kelvin) {
-    return kelvin - 273.15;
+  String kelvinToCelsius(String kelvin) {
+    if (kelvin == "0") {
+      return "--";
+    }
+    return (double.parse(kelvin) - 273.15).toString();
   }
 
   @override
@@ -160,7 +163,8 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
   void changeMapPosition() async {
     final GoogleMapController controller = await _controller.future;
     if (widget.destinations!.isNotEmpty) {
-      print("thisIsPlace: ${widget.destinations[_currentPlaceIndex].name!}, ${widget.destinations[_currentPlaceIndex].address!}");
+      print(
+          "thisIsPlace: ${widget.destinations[_currentPlaceIndex].name!}, ${widget.destinations[_currentPlaceIndex].address!}");
       LatLng target = await _getLatLngForPlace(
           widget.destinations[_currentPlaceIndex].name!,
           widget.destinations[_currentPlaceIndex].city!);
@@ -290,7 +294,8 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                               children: [
                                 Flexible(
                                   child: Text(
-                                    widget.destinations[_currentPlaceIndex].name!,
+                                    widget
+                                        .destinations[_currentPlaceIndex].name!,
                                     style: TextStyle(
                                       fontSize: 34,
                                       fontWeight: FontWeight.bold,
@@ -331,10 +336,15 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                                           ),
                                           SizedBox(width: 70),
                                           _buildTempInfoItem(
-                                            '${kelvinToCelsius(subPoiTemp?.main?.temp ?? 0).toStringAsFixed(2)}°C',
+                                            subPoiTemp != null &&
+                                                    subPoiTemp?.main != null &&
+                                                    subPoiTemp?.main?.temp !=
+                                                        null
+                                                ? '${double.parse(kelvinToCelsius(subPoiTemp!.main!.temp.toString())).toStringAsFixed(2)}°C'
+                                                : '--',
                                             getWeatherForecastLink(
                                                 subPoiTemp?.weather?[0].icon ??
-                                                    "01d"),
+                                                    "--"),
                                           ),
                                         ],
                                       ),
@@ -375,7 +385,8 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                                 ),
                                 Divider(),
                                 Text(
-                                  widget.destinations[_currentPlaceIndex].description!,
+                                  widget.destinations[_currentPlaceIndex]
+                                      .description!,
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.normal,
@@ -674,9 +685,12 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                           ),
                         ),
                         Positioned(
-                          bottom: 16.0, // Adjust the distance from the bottom as needed
-                          left: 16.0,   // Adjust the distance from the left as needed
-                          right: 16.0,  // Adjust the distance from the right as needed
+                          bottom: 16.0,
+                          // Adjust the distance from the bottom as needed
+                          left: 16.0,
+                          // Adjust the distance from the left as needed
+                          right: 16.0,
+                          // Adjust the distance from the right as needed
                           child: Container(
                             padding: EdgeInsets.all(10.0),
                             child: Column(
@@ -687,56 +701,69 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                                     Icon(Iconsax.play, color: Colors.white)),*/
                                 const SizedBox(height: 24),
                                 Opacity(
-                                  opacity: ref.watch(connectedProvider) ? 1.0 : 0.6,
+                                  opacity:
+                                      ref.watch(connectedProvider) ? 1.0 : 0.6,
                                   child: _cords != null
                                       ? ref.watch(isOrbitPlaying)
-                                      ? _roundedBtn(
-                                    "Stop Orbit",
-                                        () {
-                                      ref.read(isOrbitPlaying.notifier).state = false;
-                                      SSH(ref: ref).stopOrbit(context);
-                                      // _flyTo(_cords![0]!.latitude, _cords![0]!.longitude, 100, 60, 0);
-
-                                    },
-                                    Icon(Iconsax.stop, color: Colors.white),
-                                  )
-                                      : _roundedBtn(
-                                    "Play Orbit",
-                                        () {
-                                      ref.read(isOrbitPlaying.notifier).state = true;
-                                      _startOrbit(_cords![0]!.latitude, _cords![0]!.longitude, 200, 60, 0);
-                                    },
-                                    Icon(Iconsax.play, color: Colors.white),
-                                  )
+                                          ? _roundedBtn(
+                                              "Stop Orbit",
+                                              () {
+                                                ref
+                                                    .read(
+                                                        isOrbitPlaying.notifier)
+                                                    .state = false;
+                                                SSH(ref: ref)
+                                                    .stopOrbit(context);
+                                                // _flyTo(_cords![0]!.latitude, _cords![0]!.longitude, 100, 60, 0);
+                                              },
+                                              Icon(Iconsax.stop,
+                                                  color: Colors.white),
+                                            )
+                                          : _roundedBtn(
+                                              "Play Orbit",
+                                              () {
+                                                ref
+                                                    .read(
+                                                        isOrbitPlaying.notifier)
+                                                    .state = true;
+                                                _startOrbit(
+                                                    _cords![0]!.latitude,
+                                                    _cords![0]!.longitude,
+                                                    200,
+                                                    60,
+                                                    0);
+                                              },
+                                              Icon(Iconsax.play,
+                                                  color: Colors.white),
+                                            )
                                       : CircularProgressIndicator(), // Show a loading indicator while fetching coordinates
                                 ),
                                 ref.watch(connectedProvider)
-                                    ? const SizedBox
-                                    .shrink()
+                                    ? const SizedBox.shrink()
                                     : const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.start,
-                                    children: [
-                                      Icon(
-                                        Icons.info,
-                                        color: Colors.grey,
-                                        size: 20,
-                                      ),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        "Connect with LG Rigs to use this feature",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.normal,
-                                          color: Colors
-                                              .white, // Set text color to match the icon
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Icon(
+                                              Icons.info,
+                                              color: Colors.grey,
+                                              size: 20,
+                                            ),
+                                            SizedBox(width: 4),
+                                            Text(
+                                              "Connect with LG Rigs to use this feature",
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.normal,
+                                                color: Colors
+                                                    .white, // Set text color to match the icon
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
                                 const SizedBox(height: 20),
                               ],
                             ),
@@ -745,32 +772,31 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 8),
                   Expanded(
                     flex: 6, // 40% of the height
                     child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: AppColors.backgroundColor,
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                        border: Border.all(
-                          width: 2.0,
-                          style: BorderStyle.solid,
-                          color: Colors.transparent,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: AppColors.backgroundColor,
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          border: Border.all(
+                            width: 2.0,
+                            style: BorderStyle.solid,
+                            color: Colors.transparent,
+                          ),
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Color(0xFF817CC9),
+                              Colors.transparent,
+                              Colors.transparent,
+                              Color(0xFF817CC9)
+                            ],
+                            stops: [0.0, 0.3, 0.7, 1.0],
+                          ),
                         ),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF817CC9),
-                            Colors.transparent,
-                            Colors.transparent,
-                            Color(0xFF817CC9)
-                          ],
-                          stops: [0.0, 0.3, 0.7, 1.0],
-                        ),
-                      ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -778,8 +804,14 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.only(left: 10.0,top: 5),
-                                  child: Text("Explore the places: ", style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),),
+                                  padding: EdgeInsets.only(left: 10.0, top: 5),
+                                  child: Text(
+                                    "Explore the places: ",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                               ],
                             ),
@@ -791,51 +823,70 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                                   itemBuilder: (context, index) {
                                     final place = widget.destinations[index];
                                     return Container(
-                                      margin: EdgeInsets.symmetric(vertical: 4.0), // Space between items
+                                      margin: EdgeInsets.symmetric(
+                                          vertical: 4.0), // Space between items
                                       decoration: BoxDecoration(
                                         border: Border.all(
                                           color: Colors.white, // Border color
                                           width: 1.0, // Border width
                                         ),
-                                        borderRadius: BorderRadius.circular(8.0), // Border radius
+                                        borderRadius: BorderRadius.circular(
+                                            8.0), // Border radius
                                       ),
                                       child: Stack(
                                         children: [
                                           ListTile(
-                                            contentPadding: EdgeInsets.symmetric(horizontal: 10.0), // Padding inside the ListTile
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    horizontal: 10.0),
+                                            // Padding inside the ListTile
                                             title: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Expanded(
                                                   child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Text(
-                                                        place.name, // Display place name
+                                                        place.name,
+                                                        // Display place name
                                                         style: const TextStyle(
                                                           fontSize: 18.0,
-                                                          color: Colors.white, // Adjust color as needed
-                                                          fontWeight: FontWeight.bold,
+                                                          color: Colors.white,
+                                                          // Adjust color as needed
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                         ),
-                                                        overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
+                                                        overflow: TextOverflow
+                                                            .ellipsis, // Add ellipsis if text overflows
                                                       ),
                                                       Text(
-                                                        place.description, // Display place address
+                                                        place.description,
+                                                        // Display place address
                                                         style: const TextStyle(
                                                           fontSize: 14.0,
-                                                          color: Colors.white, // Adjust color as needed
+                                                          color: Colors
+                                                              .white, // Adjust color as needed
                                                         ),
                                                         maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
+                                                        overflow: TextOverflow
+                                                            .ellipsis, // Add ellipsis if text overflows
                                                       ),
                                                     ],
                                                   ),
                                                 ),
                                                 Icon(
                                                   _currentPlaceIndex == index
-                                                      ? Icons.pause_circle // Pause icon
-                                                      : Icons.play_circle, // Play icon
-                                                  color: Colors.white, // Icon color
+                                                      ? Icons
+                                                          .pause_circle // Pause icon
+                                                      : Icons.play_circle,
+                                                  // Play icon
+                                                  color: Colors
+                                                      .white, // Icon color
                                                 )
                                               ],
                                             ),
@@ -844,14 +895,17 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                                             onTap: () {
                                               _getSubPoiInfo();
                                               changeMapPosition();
-                                              _showChatResponse(widget.destinations);
+                                              _showChatResponse(
+                                                  widget.destinations);
                                               setState(() {
                                                 _currentPlaceIndex = index;
                                               });
                                             },
                                             child: Container(
-                                              color: Colors.transparent, // Transparent color to allow interaction
-                                              height: 60.0, // Adjust height as needed
+                                              color: Colors.transparent,
+                                              // Transparent color to allow interaction
+                                              height:
+                                                  60.0, // Adjust height as needed
                                             ),
                                           ),
                                         ],
@@ -862,8 +916,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                               ),
                             ),
                           ],
-                        )
-                    ),
+                        )),
                   ),
                 ],
               ),
@@ -919,7 +972,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
           },
           errorBuilder:
               (BuildContext context, Object error, StackTrace? stackTrace) {
-            return Icon(Icons.error, color: Colors.grey);
+            return Icon(Icons.downloading, color: Colors.grey);
           },
         ),
         Text(temperature, style: TextStyle(fontSize: 16)),
@@ -977,22 +1030,20 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
       double tilt, double bearing) async {
     await SSH(ref: ref)
         .flyToOrbit(context, latitude, longitude, zoom, tilt, bearing);
-
   }
 
   playOrbit(double longvalue, double latvalue) async {
-    await SSH(ref:ref)
+    await SSH(ref: ref)
         .buildOrbit(Orbit.buildOrbit(Orbit.generateOrbitTag(LookAt(
-        double.parse((longvalue).toStringAsFixed(2)),
-        double.parse((latvalue).toStringAsFixed(2)),
-        "30492.665945696469",
-        "0",
-        "0"))))
+            double.parse((longvalue).toStringAsFixed(2)),
+            double.parse((latvalue).toStringAsFixed(2)),
+            "30492.665945696469",
+            "0",
+            "0"))))
         .then((value) async {
       await SSH(ref: ref).startOrbit(context);
     });
   }
-
 
   Future<void> _startOrbit(double latitude, double longitude, double zoom,
       double tilt, double bearing) async {
@@ -1012,20 +1063,22 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
       }
 
       ref.read(isOrbitPlaying.notifier).state = true;
-      SSH(ref: ref).flyToOrbit(context, latitude, longitude, zoom, 60, i.toDouble());
+      SSH(ref: ref)
+          .flyToOrbit(context, latitude, longitude, zoom, 60, i.toDouble());
       await Future.delayed(const Duration(milliseconds: 1000));
     }
   }
-
 
   void _showChatResponse(List<Destinations> places) async {
     List<Location> latLng = [];
     _fetchCoordinates();
     var currentPlace = places[_currentPlaceIndex];
-    print("ChatResponse: ${_currentPlaceIndex}. ${currentPlace.name}, ${currentPlace.address}");
+    print(
+        "ChatResponse: ${_currentPlaceIndex}. ${currentPlace.name}, ${currentPlace.address}");
 
     try {
-      var newLatLng = await locationFromAddress("${currentPlace.name}, ${currentPlace.city}");
+      var newLatLng = await locationFromAddress(
+          "${currentPlace.name}, ${currentPlace.city}");
       setState(() {
         latLng = newLatLng;
       });
@@ -1042,8 +1095,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
             currentPlace.description,
             LatLng(latLng[0].latitude, latLng[0].longitude),
             currentPlace.name,
-            "${currentPlace.name!} is a ${currentPlace.address}"
-        );
+            "${currentPlace.name!} is a ${currentPlace.address}");
       } else {
         print("No coordinates found for ${currentPlace.name}");
       }
@@ -1051,9 +1103,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
       print("Error occurred: $e");
     }
 
-
     latLng.clear();
-
 
     // Debugging SSH commands
     await SSH(ref: ref).setRefresh(context);
