@@ -22,6 +22,12 @@ Planning a vacation can be overwhelming with numerous options available. The Tra
 4. **POI Orbiting**: Seamlessly transition between POIs with real-time visualization on Google Maps.
 5. **Accessibility**: Users can enable voice narration for an inclusive reading experience.
 
+## Screen shots
+![HomePage](https://github.com/user-attachments/assets/81ce7b29-d3e5-4bec-95f0-4f10f438a267)
+![TravelPage](https://github.com/user-attachments/assets/91729a89-3c24-4414-84d2-90a5cde00a53)
+![ApiSettings](https://github.com/user-attachments/assets/0adefd5b-f11d-4e8c-985d-f8d220ae9301)
+![AboutPage](https://github.com/user-attachments/assets/05bb6722-d950-42b9-b1e3-f29e7c9a7f85)
+
 ## Tech Stacks
 
 ### Frontend
