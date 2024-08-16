@@ -124,8 +124,8 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
                                                         Stack(
                                                           children: [
                                                             // Text widget for the actual text
-                                                            RichText(
-                                                              text: TextSpan(
+                                                            Text.rich(
+                                                              TextSpan(
                                                                 text: "${description.value.name}",
                                                                 style: const TextStyle(
                                                                   fontSize: 24.0,
@@ -133,6 +133,8 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
                                                                   color: Colors.white, // Text color
                                                                 ),
                                                               ),
+                                                              overflow: TextOverflow.ellipsis,
+                                                              maxLines: 1,
                                                             ),
                                                             // Positioned widget to create the underline
                                                             Positioned(
