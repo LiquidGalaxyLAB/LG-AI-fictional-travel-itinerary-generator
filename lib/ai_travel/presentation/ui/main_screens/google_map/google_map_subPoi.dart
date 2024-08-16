@@ -64,13 +64,13 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
   void initState() {
     super.initState();
     Future.delayed(Duration(seconds: 2), () {
-      _getSubPoiInfo();
-      _showChatResponse(widget.destinations);
       if (widget.selectedDestination != 0) {
         setState(() {
           _currentPlaceIndex = widget.selectedDestination;
         });
       }
+      _getSubPoiInfo();
+      _showChatResponse(widget.destinations);
       print("currentIndex ${_currentPlaceIndex}");
     });
   }
@@ -893,13 +893,13 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                                           ),
                                           GestureDetector(
                                             onTap: () {
+                                              setState(() {
+                                                _currentPlaceIndex = index;
+                                              });
                                               _getSubPoiInfo();
                                               changeMapPosition();
                                               _showChatResponse(
                                                   widget.destinations);
-                                              setState(() {
-                                                _currentPlaceIndex = index;
-                                              });
                                             },
                                             child: Container(
                                               color: Colors.transparent,

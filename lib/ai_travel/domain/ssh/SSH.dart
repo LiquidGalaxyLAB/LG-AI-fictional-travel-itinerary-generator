@@ -187,16 +187,16 @@ class SSH {
     <name>About Data</name>
     <ScreenOverlay>
       <description><![CDATA[
-        <div style="font-size:32px; text-align: center;">
-          <div style="font-weight: bold; margin-bottom: 10px;">$placeName</div>
+        <div style="font-size:96px; text-align: center;">
+          <div style="font-weight: bold; margin-bottom: 30px;">$placeName</div>
           <div style="width: 100%; text-align: center;">
-            <img src="data:image/jpeg;base64,${await getBase64Image(textQuery)}" alt="Placeholder Image" style="width: 100%; height: auto;"/>
+            <img src="data:image/jpeg;base64,${await getBase64Image(textQuery)}" alt="Placeholder Image" style="width: 100%; height: auto; border-radius: 60px;"/>
           </div>
-          <div style="margin-top: 10px;">$data</div>
+          <div style="margin-top: 30px;">$data</div>
         </div>
       ]]></description>
       <overlayXY x="0" y="1" xunits="fraction" yunits="fraction"/>
-      <screenXY x="0.05" y="0.95" xunits="fraction" yunits="fraction"/>
+      <screenXY x="0.30" y="0.70" xunits="fraction" yunits="fraction"/>
       <rotationXY x="0" y="0" xunits="fraction" yunits="fraction"/>
       <size x="0" y="0" xunits="fraction" yunits="fraction"/>
       <gx:balloonVisibility>1</gx:balloonVisibility>
@@ -210,7 +210,6 @@ class SSH {
       return Future.error('Failed to execute SSH command: $e');
     }
   }
-
 
   ///Connection Retry
   connectionRetry(context, {int i = 0}) async {
