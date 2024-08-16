@@ -121,32 +121,32 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
                                                       mainAxisAlignment: MainAxisAlignment.start,
                                                       crossAxisAlignment: CrossAxisAlignment.center,
                                                       children: [
-                                                        Stack(
-                                                          children: [
-                                                            // Text widget for the actual text
-                                                            Text.rich(
-                                                              TextSpan(
-                                                                text: "${description.value.name}",
+                                                        Flexible(
+                                                          child: Stack(
+                                                            children: [
+                                                              // Text widget for the actual text
+                                                              Text(
+                                                                "${description.value.name}",
                                                                 style: const TextStyle(
                                                                   fontSize: 24.0,
                                                                   fontWeight: FontWeight.normal,
                                                                   color: Colors.white, // Text color
                                                                 ),
+                                                                overflow: TextOverflow.ellipsis,
+                                                                maxLines: 1,
                                                               ),
-                                                              overflow: TextOverflow.ellipsis,
-                                                              maxLines: 1,
-                                                            ),
-                                                            // Positioned widget to create the underline
-                                                            Positioned(
-                                                              bottom: 0,
-                                                              left: 0,
-                                                              child: Container(
-                                                                height: 2.0, // Thickness of the underline
-                                                                color: Colors.white, // Underline color
-                                                                width: "${description.value.description}".length * 14.0, // Adjusted the width of the underline based on text length
+                                                              // Positioned widget to create the underline
+                                                              Positioned(
+                                                                bottom: 0,
+                                                                left: 0,
+                                                                right: 0, // Add right: 0 to ensure it takes full width
+                                                                child: Container(
+                                                                  height: 2.0, // Thickness of the underline
+                                                                  color: Colors.white, // Underline color
+                                                                ),
                                                               ),
-                                                            ),
-                                                          ],
+                                                            ],
+                                                          ),
                                                         ),
                                                         const SizedBox(width: 5.0), // Adding some space between text and icon
                                                         const Icon(
@@ -156,6 +156,8 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
                                                         ),
                                                       ],
                                                     ),
+
+
                                                     const SizedBox(height: 10.0),
                                                     Text(
                                                       description.value.description,
