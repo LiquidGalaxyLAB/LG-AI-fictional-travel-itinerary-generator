@@ -726,6 +726,11 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                                                     .read(
                                                         isOrbitPlaying.notifier)
                                                     .state = true;
+                                                /*SSH.orbitAround(
+                                                  LatLng(
+                                                      _cords![0]!.latitude,
+                                                      _cords![0]!.longitude),
+                                                  );*/
                                                 _startOrbit(
                                                     _cords![0]!.latitude,
                                                     _cords![0]!.longitude,
@@ -800,17 +805,34 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Row(
+                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Padding(
                                   padding: EdgeInsets.only(left: 10.0, top: 5),
-                                  child: Text(
-                                    "Explore the places: ",
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Explore the places: ",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: AppColors.onBackgroundColor,
+                                          borderRadius: BorderRadius.circular(10.0),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            "${ref.read(currentAiModelSelected)}",
+                                          ),
+                                        ),
+                                      )
+                                    ],
                                   ),
                                 ),
                               ],
@@ -1063,8 +1085,7 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
       }
 
       ref.read(isOrbitPlaying.notifier).state = true;
-      SSH(ref: ref)
-          .flyToOrbit(context, latitude, longitude, zoom, 60, i.toDouble());
+      SSH(ref: ref).flyToOrbit(context, latitude, longitude, zoom, 60, i.toDouble());
       await Future.delayed(const Duration(milliseconds: 1000));
     }
   }

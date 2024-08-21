@@ -13,6 +13,7 @@ import 'package:lg_ai_travel_itinerary/ai_travel/presentation/ui/main_screens/go
 import '../../../config/string/String.dart';
 import '../../../config/theme/app_theme.dart';
 import '../../../domain/ssh/SSH.dart';
+import '../../providers/connection_providers.dart';
 import '../../widgets/app_bar.dart';
 import '../../widgets/destination_card.dart';
 import 'home_page.dart';
@@ -209,7 +210,22 @@ class _GeneratedSubPoiPageState extends ConsumerState<GeneratedSubPoiPage> {
                 ),
               ),
             ),
-
+            Positioned(
+              top: 10,
+              right: 20,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.onBackgroundColor,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "${ref.read(currentAiModelSelected)}",
+                  ),
+                ),
+              )
+            )
           ],
         ),
       ),
