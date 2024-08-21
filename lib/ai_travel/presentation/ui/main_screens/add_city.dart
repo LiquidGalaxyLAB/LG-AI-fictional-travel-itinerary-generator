@@ -164,7 +164,7 @@ class _AddCityState extends ConsumerState<AddCity> {
                         width: 24.0,
                         height: 24.0,
                         child: CircularProgressIndicator(
-                          color: Colors.white,
+                          color: Colors .white,
                         ),
                       )
                           : CustomDropdown(elementList: groqAiModelList),

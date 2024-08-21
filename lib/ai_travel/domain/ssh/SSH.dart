@@ -1,5 +1,6 @@
 
 import 'dart:io';
+import 'dart:math';
 import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -187,16 +188,16 @@ class SSH {
     <name>About Data</name>
     <ScreenOverlay>
       <description><![CDATA[
-        <div style="font-size:96px; text-align: center;">
+        <div style="font-size:40px; text-align: center;">
           <div style="font-weight: bold; margin-bottom: 30px;">$placeName</div>
           <div style="width: 100%; text-align: center;">
-            <img src="data:image/jpeg;base64,${await getBase64Image(textQuery)}" alt="Placeholder Image" style="width: 100%; height: auto; border-radius: 60px;"/>
+            <img src="data:image/jpeg;base64,${await getBase64Image(textQuery)}" alt="Placeholder Image" style="width: 100%; height: auto; border-radius: 30px;"/>
           </div>
-          <div style="margin-top: 30px;">$data</div>
+          <div style="margin-top: 20px;">$data</div>
         </div>
       ]]></description>
-      <overlayXY x="0" y="1" xunits="fraction" yunits="fraction"/>
-      <screenXY x="0.30" y="0.70" xunits="fraction" yunits="fraction"/>
+      <overlayXY x="0" y="0" xunits="fraction" yunits="fraction"/>
+      <screenXY x="0.0" y="0.0" xunits="fraction" yunits="fraction"/>
       <rotationXY x="0" y="0" xunits="fraction" yunits="fraction"/>
       <size x="0" y="0" xunits="fraction" yunits="fraction"/>
       <gx:balloonVisibility>1</gx:balloonVisibility>
@@ -417,6 +418,43 @@ class SSH {
         await flyTo(context, latitude, longitude, zoom, tilt, bearing);
       } catch (e) {}
     }
+  }
+
+  static String orbitAround(
+      LatLng latLng, {
+        double zoom = 17,
+      }) {
+    print('orbitAround');
+    int heading = 0;
+    String tags = "";
+    double altitude = 156543.03392 * cos(latLng.latitude * pi / 180) / pow(2.0, zoom) * 1000;
+
+    for (var i = 0; i <= 36; i++) {
+      heading += 10;
+      tags += """
+      <gx:FlyTo>
+        <gx:duration>1.2</gx:duration>
+        <gx:flyToMode>smooth</gx:flyToMode>
+        <LookAt>
+          <longitude>${latLng.longitude}</longitude>
+          <latitude>${latLng.latitude}</latitude>
+          <heading>$heading</heading>
+          <tilt>60</tilt>
+          <range>2000</range>
+          <gx:fovy>60</gx:fovy>
+          <altitude>3341.7995674</altitude>
+          <gx:altitudeMode>absolute</gx:altitudeMode>
+        </LookAt>
+      </gx:FlyTo>""";
+    }
+
+    return """<?xml version="1.0" encoding="UTF-8"?>
+    <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">  
+      <gx:Tour>
+        <name>Orbit</name>
+        <gx:Playlist>$tags</gx:Playlist>
+      </gx:Tour>
+    </kml>""";
   }
 
   /// For Flying to a instant

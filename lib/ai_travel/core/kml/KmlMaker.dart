@@ -62,9 +62,9 @@ class KMLMakers {
 				<href>$imageUrl</href>
 			</Icon>
 			<overlayXY x="0" y="1" xunits="fraction" yunits="fraction"/>
-			<screenXY x="0.3" y="0.95" xunits="fraction" yunits="fraction"/>
+			<screenXY x="0.025" y="0.95" xunits="fraction" yunits="fraction"/>
 			<rotationXY x="0" y="0" xunits="fraction" yunits="fraction"/>
-			<size x="0" y="0" xunits="pixels" yunits="fraction"/>
+			<size x="${370 * 2}" y="${(300 * 2864 / 3000) * 2}" xunits="pixels" yunits="pixels"/>
 		</ScreenOverlay>
 	</Folder>
 </Document>
@@ -88,7 +88,7 @@ class KMLMakers {
 
   static String lookAtLinear(double latitude, double longitude, double zoom,
       double tilt, double bearing) =>
-      '<LookAt><longitude>$longitude</longitude><latitude>$latitude</latitude><range>$zoom</range><tilt>$tilt</tilt><heading>$bearing</heading><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>';
+      '<LookAt><longitude>$longitude</longitude><latitude>$latitude</latitude><range>2000</range><tilt>$tilt</tilt><heading>$bearing</heading><altitude>3341.7995674</altitude><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>';
 
   static String lookAt(CameraPosition camera, bool scaleZoom) => '''<LookAt>
   <longitude>${camera.target.longitude}</longitude>
@@ -101,7 +101,7 @@ class KMLMakers {
 
   static String orbitLookAtLinear(double latitude, double longitude,
       double zoom, double tilt, double bearing) =>
-      '<gx:duration>2</gx:duration><gx:flyToMode>smooth</gx:flyToMode><LookAt><longitude>$longitude</longitude><latitude>$latitude</latitude><range>$zoom</range><tilt>$tilt</tilt><heading>$bearing</heading><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>';
+      '<gx:duration>2</gx:duration><gx:flyToMode>smooth</gx:flyToMode><LookAt><longitude>$longitude</longitude><latitude>$latitude</latitude><range>$zoom</range><gx:fovy>60</gx:fovy><tilt>$tilt</tilt><heading>$bearing</heading><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>';
 
   static String lookAtLinearInstant(double latitude, double longitude,
       double zoom, double tilt, double bearing) =>
